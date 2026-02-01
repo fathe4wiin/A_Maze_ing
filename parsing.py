@@ -1,60 +1,58 @@
-from dataclasses import dataclass
+import re
 
-@dataclass
+
+class Parsing:
+    @staticmethod
+    def parse_config(filename):
+        # Define mandatory keys and conversion logic
+        MANDATORY_KEYS = {
+            "WIDTH": int,
+            "HEIGHT": int,
+            "ENTRY": lambda v: tuple(map(int, v.split(','))),
+            "EXIT": lambda v: tuple(map(int, v.split(','))),
+            "OUTPUT_FILE": str,
+            "PERFECT": lambda v: v.lower() == "true"
+        }
+
+        config = dict()
+
+        with open(filename) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                match = re.match(r'^(\w+)\s*=\s*(.+)$', line)
+                if match:
+                    key, value = match.groups()
+                    config[key] = value
+                else:
+                    raise ValueError(f"Invalid config line: '{line}'")
+
+        # Check presence and parse types for mandatory keys
+        for key, converter in MANDATORY_KEYS.items():
+            if key not in config:
+                raise KeyError(f"Mandatory key '{key}' not found in config.")
+            try:
+                config[key] = converter(config[key])
+            except Exception as e:
+                raise ValueError(f"Invalid value for {key}: {config[key]!r} ({e})")
+        # Convert optional entries to str (keep as raw)
+        for key in config:
+            if key not in MANDATORY_KEYS:
+                config[key] = config[key].strip()
+        return config
+
+
 class Config:
-    width
-    height
-    entry
-    exit
-    perfect
-    output_file
-    seed = None
+    def __init__(self, filename):
+        entries = Parsing.parse_config(filename)
+        self.__dict__.update(entries)
+    
+    
+    
+    
 
 
-def parse_bool(v):
-    return v.lower() in ("1", "true", "yes", "y")
-
-
-def parse_config(file):
-    data = {}
-
-    for line in file:
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        if "=" not in line:
-            raise ValueError(f"Invalid line: {line}")
-        k, v = map(str.strip, line.split("=", 1))
-        if k in data:
-            raise ValueError(f"Duplicate key: {k}")
-        data[k] = v
-
-    for k in ("WIDTH", "HEIGHT", "ENTRY", "EXIT", "PERFECT", "OUTPUT_FILE"):
-        if k not in data:
-            raise ValueError(f"Missing key: {k}")
-
-    width = int(data["WIDTH"])
-    height = int(data["HEIGHT"])
-
-    entry = tuple(map(int, data["ENTRY"].split(",")))
-    exit_ = tuple(map(int, data["EXIT"].split(",")))
-
-    if width < 1 or height < 1:
-        raise ValueError("WIDTH and HEIGHT must be >= 1")
-
-    for name, (x, y) in (("ENTRY", entry), ("EXIT", exit_)):
-        if not (0 <= x < width and 0 <= y < height):
-            raise ValueError(f"{name} out of bounds")
-
-    if entry == exit_:
-        raise ValueError("ENTRY and EXIT must be different")
-
-    return Config(
-        width,
-        height,
-        entry,
-        exit_,
-        parse_bool(data["PERFECT"]),
-        data["OUTPUT_FILE"],
-        int(data["SEED"]) if "SEED" in data else None
-    )
+# Example usage:
+# config = parse_config("maze.conf")
+# print(config)
