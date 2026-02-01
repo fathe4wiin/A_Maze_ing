@@ -1,5 +1,4 @@
 import random
-from maze_gen import Cell
 from cell import Cell
 
 class MazeAlgo():
