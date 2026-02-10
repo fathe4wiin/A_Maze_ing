@@ -1,3 +1,6 @@
+import os
+os.environ['SDL_VIDEODRIVER'] = 'x11'
+
 import pygame
 import sys
 from maze_gen import MazeGen
@@ -116,7 +119,7 @@ class MazeVisualizer:
         # Draw legend
         legend_text = "Green = Entry | Red = Exit"
         text_surface = self.font.render(legend_text, True, self.BLACK)
-        self.screen.blit(text_surface, (10, 10))
+        # self.screen.blit(text_surface, (10, 10))
     
     def run(self):
         """Run the visualization loop"""
