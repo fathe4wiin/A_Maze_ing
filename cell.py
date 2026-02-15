@@ -8,7 +8,7 @@ class Cell:
         self.visited: bool = False
         self.neighbors: Dict[str, Optional['Cell']] = {
             'N': None, 'E': None, 'S': None, 'W': None
-        }
+        }  
 
     def remove_wall_with(self, neighbor: 'Cell') -> None:
         dx = neighbor.x - self.x

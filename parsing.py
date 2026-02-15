@@ -45,8 +45,17 @@ class Parsing:
 
 class Config:
     def __init__(self, filename):
-        entries = Parsing.parse_config(filename)
-        self.__dict__.update(entries)
+        # Initialize default attributes for mandatory keys
+        self.WIDTH = None
+        self.HEIGHT = None
+        self.ENTRY = None
+        self.EXIT = None
+        self.OUTPUT_FILE = None
+        self.PERFECT = None
+
+        if filename:
+            entries = Parsing.parse_config(filename)
+            self.__dict__.update(entries)
     
     
     

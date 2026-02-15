@@ -8,14 +8,11 @@ class MazeAlgo():
         random.seed(seed)
         
     @staticmethod
-    def generate_maze(maze: list[list[Cell]], start_x, start_y, seed=None):
+    def generate_maze(maze: list[list[Cell]], start_x, start_y, perfect: bool, seed=None):
         if seed is not None:
             random.seed(seed)
-        height = len(maze)
-        width = len(maze[0])
         
         stack = []
-        n_cell: Cell
         current: Cell = maze[start_y][start_x]
         current.visited = True
         while True:
@@ -23,19 +20,22 @@ class MazeAlgo():
             for direction, neighbor in current.neighbors.items():
                 if neighbor and not neighbor.visited:
                     unvisited_neighbors.append((direction, neighbor))
+            
             if unvisited_neighbors:
                 n_dir, n_cell = random.choice(unvisited_neighbors)
-            elif not stack:
-                break
-            else:
+                current.remove_wall_with(n_cell)
+                stack.append(current)
+                n_cell.visited = True
+                current = n_cell
+            elif stack:
                 current = stack.pop()
-                continue
-            current.remove_wall_with(n_cell)
-            stack.append(current)
-            n_cell.visited = True
-            current = n_cell
-            
-        unpefect_the_maze(maze)
+            else:
+                break
+            yield maze
+        
+        if not perfect:
+            unpefect_the_maze(maze)
+            yield maze
 
 
 def unpefect_the_maze(maze: list[list[Cell]], seed=None):

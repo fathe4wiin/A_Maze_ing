@@ -40,5 +40,5 @@ class MazeGen():
     
     def generate_maze(self, layout: list[list[Cell]], perfect: bool):
         from maze_algo import MazeAlgo
-        MazeAlgo.generate_maze(layout, 0, 0)
+        return MazeAlgo.generate_maze(layout, 0, 0, perfect)
     
