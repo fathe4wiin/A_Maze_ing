@@ -19,21 +19,30 @@ class MazeGen():
             (-1, 0, 'W', 'E')
         ]
 
-        def flood_fill(x, y):
-            if not in_bounds(x, y) or visited[y][x]:
-                return
-            cell = Cell(x, y)
-            layout[y][x] = cell
-            visited[y][x] = True
-            for dx, dy, dirn, opp in directions:
-                nx, ny = x + dx, y + dy
-                if in_bounds(nx, ny):
-                    if layout[ny][nx] is None:
-                        flood_fill(nx, ny)
-                    neighbor = layout[ny][nx]
-                    cell.neighbors[dirn] = neighbor
-                    if neighbor:
-                        neighbor.neighbors[opp] = cell
+        def flood_fill(start_x, start_y):
+            stack = [(start_x, start_y)]
+            while stack:
+                x, y = stack.pop()
+                if visited[y][x]:
+                    continue
+                
+                if layout[y][x] is None:
+                    layout[y][x] = Cell(x, y)
+                cell = layout[y][x]
+                visited[y][x] = True
+                
+                for dx, dy, dirn, opp in directions:
+                    nx, ny = x + dx, y + dy
+                    if in_bounds(nx, ny):
+                        if not visited[ny][nx]:
+                            if layout[ny][nx] is None:
+                                layout[ny][nx] = Cell(nx, ny)
+                            stack.append((nx, ny))
+                        
+                        neighbor = layout[ny][nx]
+                        if neighbor:
+                            cell.neighbors[dirn] = neighbor
+                            neighbor.neighbors[opp] = cell
 
         flood_fill(0, 0)
         return layout

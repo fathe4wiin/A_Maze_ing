@@ -53,6 +53,10 @@ class MazeVisualizer:
                 err += dx
                 y1 += sy
 
+    def draw_filled_rect(self, x, y, width, height, color):
+        for i in range(x, x + width):
+            for j in range(y, y + height):
+                self.draw_pixel(i, j, color)
 
     def render_loop(self, param):
         if self.generator:
@@ -62,14 +66,36 @@ class MazeVisualizer:
                 self.generator = None
 
         # Clear and Draw
-        self.mlx.mlx_clear_window(self.mlx_ptr, self.win)
+        self.color_change(0, 0)
         
+        # Define 42 pattern (3x5 grids)
+        four = [
+            (0,0), (0,1), (0,2), # Left vertical
+            (1,2),               # Middle horizontal
+            (2,0), (2,1), (2,2), (2,3), (2,4) # Right vertical
+        ]
+        two = [
+            (4,0), (5,0), (6,0), # Top horizontal
+            (6,1),               # Top right
+            (4,2), (5,2), (6,2), # Middle horizontal
+            (4,3),               # Bottom left
+            (4,4), (5,4), (6,4)  # Bottom horizontal
+        ]
+        
+        # Calculate center offset
+        offset_x = (self.width - 7) // 2
+        offset_y = (self.height - 5) // 2
+        text_cells = set((x + offset_x, y + offset_y) for x, y in four + two)
+
         for row in self.maze:
             for cell in row:
                 x = cell.x * self.tile_size
                 y = cell.y * self.tile_size
                 
-                # Highlight current/visited if we wanted to
+                # Highlight the "42" cells
+                if (cell.x, cell.y) in text_cells:
+                    self.draw_filled_rect(x + 1, y + 1, self.tile_size - 1, self.tile_size - 1, 0x00FFD700) # Gold
+
                 wall_color = 0x00000000 # Black
                 
                 if cell.walls['N']:
