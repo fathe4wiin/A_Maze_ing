@@ -17,8 +17,9 @@ class MazeVisualizer:
         self.offset_y = (self.win_height - self.height * self.tile_size) // 2
         
         # Colors
-        self.cell_color = 0xFFFFFFFF      # White
+        self.cell_color = 0xFFFFFFFF     # White
         self.wall_color = 0xFF000000      # Black
+        self.background_color = 0x55FFFFFF # grey 
         self.highlight_color = 0xFFFFD700 # Gold (42 pattern)
 
         self.mlx = Mlx()
@@ -43,10 +44,10 @@ class MazeVisualizer:
             self.mlx.mlx_pixel_put(self.mlx_ptr, self.win, x, y, color)
 
     def color_change(self, x, y):
-        background_color = 0xFFFFFFFF # White
+
         for x in range(self.win_width):
             for y in range (self.win_height):
-                self.mlx.mlx_pixel_put(self.mlx_ptr, self.win, x, y, background_color)
+                self.mlx.mlx_pixel_put(self.mlx_ptr, self.win, x, y, self.background_color)
 
 
     def draw_line(self, x1, y1, x2, y2, color):
@@ -97,6 +98,12 @@ class MazeVisualizer:
         offset_y = (self.height - 5) // 2
         text_cells = set((x + offset_x, y + offset_y) for x, y in four + two)
 
+        # Draw entire maze area with cell color
+        maze_pixel_width = self.width * self.tile_size
+        maze_pixel_height = self.height * self.tile_size
+        self.draw_filled_rect(self.offset_x, self.offset_y, maze_pixel_width, maze_pixel_height, self.cell_color)
+
+        # Draw 42 pattern highlights
         for row in self.maze:
             for cell in row:
                 x = self.offset_x + cell.x * self.tile_size
@@ -104,7 +111,13 @@ class MazeVisualizer:
                 
                 # Highlight the "42" cells
                 if (cell.x, cell.y) in text_cells:
-                    self.draw_filled_rect(x + 1, y + 1, self.tile_size - 1, self.tile_size - 1, self.highlight_color)
+                    self.draw_filled_rect(x, y, self.tile_size, self.tile_size, self.highlight_color)
+
+        # Draw walls on top
+        for row in self.maze:
+            for cell in row:
+                x = self.offset_x + cell.x * self.tile_size
+                y = self.offset_y + cell.y * self.tile_size
                 
                 if cell.walls['N']:
                     self.draw_line(x, y, x + self.tile_size, y, self.wall_color)
@@ -118,7 +131,6 @@ class MazeVisualizer:
         return 0
 
     def key_hook(self, keycode, param):
-        print(keycode)
         if keycode == 65307 : # ESC
             self.mlx.mlx_loop_exit(self.mlx_ptr)
         return 0
