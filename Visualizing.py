@@ -20,6 +20,8 @@ class MazeVisualizer:
         self.win = self.mlx.mlx_new_window(self.mlx_ptr, self.win_width, self.win_height, "Maze Visualizer")
         
         self.mlx.mlx_key_hook(self.win, self.key_hook, None)
+        # x button hook
+        self.mlx.mlx_hook(self.win, 17, 0, self.close_window, None)
         self.mlx.mlx_loop_hook(self.mlx_ptr, self.render_loop, None)
 
     def draw_pixel(self, x, y, color):
@@ -110,8 +112,13 @@ class MazeVisualizer:
         return 0
 
     def key_hook(self, keycode, param):
-        if keycode == 65307: # ESC
+        print(keycode)
+        if keycode == 65307 : # ESC
             self.mlx.mlx_loop_exit(self.mlx_ptr)
+        return 0
+
+    def close_window(self, param):
+        self.mlx.mlx_loop_exit(self.mlx_ptr)
         return 0
 
     def run(self):

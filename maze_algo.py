@@ -15,6 +15,8 @@ class MazeAlgo():
         stack = []
         current: Cell = maze[start_y][start_x]
         current.visited = True
+
+        mark_four_two(maze)
         while True:
             unvisited_neighbors = []
             for direction, neighbor in current.neighbors.items():
@@ -77,3 +79,23 @@ def ruin_the_maze(
         target.remove_wall_with(neighbor)
         
         
+
+def mark_four_two(maze: list[list[Cell]]):
+        four = [
+            (0,0), (0,1), (0,2), # Left vertical
+            (1,2),               # Middle horizontal
+            (2,0), (2,1), (2,2), (2,3), (2,4) # Right vertical
+        ]
+        two = [
+            (4,0), (5,0), (6,0), # Top horizontal
+            (6,1),               # Top right
+            (4,2), (5,2), (6,2), # Middle horizontal
+            (4,3),               # Bottom left
+            (4,4), (5,4), (6,4)  # Bottom horizontal
+        ]
+        offset_x = (len(maze[0]) - 7) // 2
+        offset_y = (len(maze) - 5) // 2
+        for x, y in four + two:
+            if 0 <= y < len(maze) and 0 <= x < len(maze[0]):
+                maze[y+offset_y][x+offset_x].visited = True
+

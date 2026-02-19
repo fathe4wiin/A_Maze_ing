@@ -1,4 +1,5 @@
 from cell import Cell
+from maze_algo import MazeAlgo
 
 class MazeGen():
     def __init__(self):
@@ -48,6 +49,5 @@ class MazeGen():
         return layout
     
     def generate_maze(self, layout: list[list[Cell]], perfect: bool):
-        from maze_algo import MazeAlgo
         return MazeAlgo.generate_maze(layout, 0, 0, perfect)
     

@@ -10,6 +10,7 @@ def main():
     gen = maze.generate_maze(layout, config.PERFECT)
     
     viz = MazeVisualizer(layout, generator=gen)
+    
     viz.run()
     
 
