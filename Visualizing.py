@@ -2,26 +2,40 @@ import sys
 from mlx import Mlx
 
 class MazeVisualizer:
-    def __init__(self, maze, generator=None, tile_size=20):
+    def __init__(self, maze, mlx_ptr=None, win=None):
         self.maze = maze
-        self.generator = generator
         self.height = len(maze)
         self.width = len(maze[0])
-        self.tile_size = tile_size
-        self.win_width = self.width * self.tile_size
-        self.win_height = self.height * self.tile_size
+        
+        # Fixed window size, calculate tile size based on cells
+        self.win_width = 1000
+        self.win_height = 720
+        self.tile_size = min(self.win_width // self.width, self.win_height // self.height)
+        
+        # Calculate offset to center the maze
+        self.offset_x = (self.win_width - self.width * self.tile_size) // 2
+        self.offset_y = (self.win_height - self.height * self.tile_size) // 2
+        
+        # Colors
+        self.cell_color = 0xFFFFFFFF      # White
+        self.wall_color = 0xFF000000      # Black
+        self.highlight_color = 0xFFFFD700 # Gold (42 pattern)
 
         self.mlx = Mlx()
-        self.mlx_ptr = self.mlx.mlx_init()
+        if mlx_ptr:
+            self.mlx_ptr = mlx_ptr
+        else:
+            self.mlx_ptr = self.mlx.mlx_init()
+            
         if not self.mlx_ptr:
             print("Failed to initialize MLX")
             sys.exit(1)
-        
-        self.win = self.mlx.mlx_new_window(self.mlx_ptr, self.win_width, self.win_height, "Maze Visualizer")
+        if win:
+            self.win = win
+        else:
+            self.win = self.mlx.mlx_new_window(self.mlx_ptr, self.win_width, self.win_height, "Maze Visualizer")
         
         self.mlx.mlx_key_hook(self.win, self.key_hook, None)
-        # x button hook
-        self.mlx.mlx_hook(self.win, 17, 0, self.close_window, None)
         self.mlx.mlx_loop_hook(self.mlx_ptr, self.render_loop, None)
 
     def draw_pixel(self, x, y, color):
@@ -61,12 +75,6 @@ class MazeVisualizer:
                 self.draw_pixel(i, j, color)
 
     def render_loop(self, param):
-        if self.generator:
-            try:
-                self.maze = next(self.generator)
-            except StopIteration:
-                self.generator = None
-
         # Clear and Draw
         self.color_change(0, 0)
         
@@ -91,23 +99,21 @@ class MazeVisualizer:
 
         for row in self.maze:
             for cell in row:
-                x = cell.x * self.tile_size
-                y = cell.y * self.tile_size
+                x = self.offset_x + cell.x * self.tile_size
+                y = self.offset_y + cell.y * self.tile_size
                 
                 # Highlight the "42" cells
                 if (cell.x, cell.y) in text_cells:
-                    self.draw_filled_rect(x + 1, y + 1, self.tile_size - 1, self.tile_size - 1, 0x00FFD700) # Gold
-
-                wall_color = 0x00000000 # Black
+                    self.draw_filled_rect(x + 1, y + 1, self.tile_size - 1, self.tile_size - 1, self.highlight_color)
                 
                 if cell.walls['N']:
-                    self.draw_line(x, y, x + self.tile_size, y, wall_color)
+                    self.draw_line(x, y, x + self.tile_size, y, self.wall_color)
                 if cell.walls['S']:
-                    self.draw_line(x, y + self.tile_size, x + self.tile_size, y + self.tile_size, wall_color)
+                    self.draw_line(x, y + self.tile_size, x + self.tile_size, y + self.tile_size, self.wall_color)
                 if cell.walls['E']:
-                    self.draw_line(x + self.tile_size, y, x + self.tile_size, y + self.tile_size, wall_color)
+                    self.draw_line(x + self.tile_size, y, x + self.tile_size, y + self.tile_size, self.wall_color)
                 if cell.walls['W']:
-                    self.draw_line(x, y, x, y + self.tile_size, wall_color)
+                    self.draw_line(x, y, x, y + self.tile_size, self.wall_color)
         
         return 0
 

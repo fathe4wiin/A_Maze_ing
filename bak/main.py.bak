@@ -1,0 +1,50 @@
+import sys
+from maze_gen import MazeGen
+from parsing import Config
+from Visualizing import MazeVisualizer
+from mlx_ui import Label, Button
+from mlx import Mlx
+
+
+class Window:
+    def __init__(self, width, height, title):
+        self.mlx = Mlx()
+        self.mlx_ptr = self.mlx.mlx_init()
+        self.win = self.mlx.mlx_new_window(self.mlx_ptr, width, height, title)
+    
+        self.mlx.mlx_mouse_hook(self.win, self.mouse_hook, None)
+    def mouse_hook(self, x, y, button, state):
+        print(f"Mouse clicked at ({x}, {y}) with button {button} and state {state}")
+
+def main():
+
+
+    config: Config = Config("config.txt")
+    maze = MazeGen()
+    layout = maze.create_cell_layout(config.WIDTH, config.HEIGHT)
+    gen = maze.generate_maze(layout, config.PERFECT)
+
+    win = Window(800, 600, "Maze Generator")
+    btn = Button(win.mlx, win.mlx_ptr, win.win, 300, 200, 200, 50, 0xFF0000FF, "Generate Maze")
+
+
+
+    btn.draw()
+    def render_loop(_):
+        pass
+
+    def mouse_hook(button, x, y, _):
+        if button == 1:
+            if btn.is_clicked(x, y):
+                viz = MazeVisualizer(layout, generator=gen, mlx_ptr=win.mlx_ptr)
+                viz.run()
+
+    win.mlx.mlx_mouse_hook(win.win, mouse_hook, None)
+    win.mlx.mlx_loop_hook(win.mlx_ptr, render_loop, None)
+    win.mlx.mlx_loop(win.mlx_ptr)
+
+
+if __name__ == "__main__":
+    main()
+
+
