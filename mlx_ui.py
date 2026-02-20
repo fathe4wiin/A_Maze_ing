@@ -72,7 +72,7 @@ class Label:
         self.mlx.mlx_string_put(self.mlx_ptr, self.win, self.x, self.y, self.color, self.text)
 
 class Button:
-    def __init__(self, mlx, mlx_ptr, win, x, y, w, h, color, text, text_color=0xFFFFFFFF):
+    def __init__(self, mlx, mlx_ptr, win, x, y, w, h, color, text, text_color=0xFFFFFFFF, on_click=None):
         self.mlx = mlx
         self.mlx_ptr = mlx_ptr
         self.win = win
@@ -84,6 +84,7 @@ class Button:
         self.text = text
         self.text_color = text_color
         self.destroyed = False
+        self.on_click = on_click
         # Create a Label for the button text
         self.label = Label(mlx, mlx_ptr, win, x + 10, y + (h // 2) - 10, text, text_color)
 
@@ -104,6 +105,13 @@ class Button:
         if self.destroyed:
             return False
         return self.x <= mx <= self.x + self.w and self.y <= my <= self.y + self.h
+
+    def handle_click(self, mx, my):
+        """Check if clicked and execute callback if set."""
+        if self.is_clicked(mx, my) and self.on_click:
+            self.on_click()
+            return True
+        return False
 
     def destroy(self):
         """Mark the button as destroyed so it won't be drawn."""

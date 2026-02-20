@@ -2,7 +2,7 @@ import sys
 from mlx import Mlx
 
 class MazeVisualizer:
-    def __init__(self, maze, mlx_ptr=None, win=None):
+    def __init__(self, maze, mlx_ptr=None, win=None, bg_color=0x55FFFFFF, cell_color=0xFFFFFFFF, wall_color=0xFF000000, pattern_color=0xFFFFD700):
         self.maze = maze
         self.height = len(maze)
         self.width = len(maze[0])
@@ -16,11 +16,11 @@ class MazeVisualizer:
         self.offset_x = (self.win_width - self.width * self.tile_size) // 2
         self.offset_y = (self.win_height - self.height * self.tile_size) // 2
         
-        # Colors
-        self.cell_color = 0xFFFFFFFF     # White
-        self.wall_color = 0xFF000000      # Black
-        self.background_color = 0x55FFFFFF # grey 
-        self.highlight_color = 0xFFFFD700 # Gold (42 pattern)
+        # Colors (from parameters)
+        self.cell_color = cell_color
+        self.wall_color = wall_color
+        self.background_color = bg_color
+        self.highlight_color = pattern_color
 
         self.mlx = Mlx()
         if mlx_ptr:
