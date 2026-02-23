@@ -69,8 +69,11 @@ def main():
                     bg_color=selected_colors['bg'],
                     cell_color=selected_colors['cell'],
                     wall_color=selected_colors['wall'],
-                    pattern_color=selected_colors['pattern']
+                    pattern_color=selected_colors['pattern'],
+                    start=config.ENTRY,
+                    exit=config.EXIT
                 )
+                viz.solve()
                 viz.run()
             if quit_btn.is_clicked(x, y):
                 start_btn.destroy()

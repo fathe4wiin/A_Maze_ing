@@ -26,5 +26,13 @@ class Cell:
             self.walls['N'] = False
             neighbor.walls['S'] = False
 
-    def __repr__(self) -> str:
-        return f"Cell({self.x}, {self.y})"
+    def is_accessible(self, neighbor: 'Cell'):
+        if neighbor.x == self.x + 1:
+            return not self.walls['E']
+        elif neighbor.x == self.x - 1:
+            return not self.walls['W']
+        elif neighbor.y == self.y + 1:
+            return not self.walls['S']
+        elif neighbor.y == self.y - 1:
+            return not self.walls['N']
+        return False

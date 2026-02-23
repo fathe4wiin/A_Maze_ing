@@ -1,11 +1,17 @@
 import sys
 from mlx import Mlx
+from cell import Cell
+from maze_solver import bfs
 
 class MazeVisualizer:
-    def __init__(self, maze, mlx_ptr=None, win=None, bg_color=0x55FFFFFF, cell_color=0xFFFFFFFF, wall_color=0xFF000000, pattern_color=0xFFFFD700):
+    def __init__(self, maze, mlx_ptr=None, win=None, bg_color=0x55FFFFFF, cell_color=0xFFFFFFFF, wall_color=0xFF000000, pattern_color=0xFFFFD700, start=None, exit=None):
         self.maze = maze
         self.height = len(maze)
         self.width = len(maze[0])
+        self.start = start  # (x, y) tuple for start cell
+        self.exit = exit    # (x, y) tuple for exit cell
+        self.path = []      # List of cells in the solution path
+        self.show_path = False  # Flag to control path visibility
         
         # Fixed window size, calculate tile size based on cells
         self.win_width = 1000
@@ -128,10 +134,32 @@ class MazeVisualizer:
                 if cell.walls['W']:
                     self.draw_line(x, y, x, y + self.tile_size, self.wall_color)
         
+        # Draw start and exit markers (squares in the middle of the cells)
+        marker_size = max(4, self.tile_size // 4)  # Size of the marker square
+        
+        # Draw path if solve has been called
+        if self.show_path and self.path:
+            for cell in self.path:
+                cell_center_x = self.offset_x + cell.x * self.tile_size + self.tile_size // 2 - marker_size // 2
+                cell_center_y = self.offset_y + cell.y * self.tile_size + self.tile_size // 2 - marker_size // 2
+                self.draw_filled_rect(cell_center_x, cell_center_y, marker_size, marker_size, 0xFF00FF00)  # Green
+        
+        if self.start:
+            sx, sy = self.start
+            cell_center_x = self.offset_x + sx * self.tile_size + self.tile_size // 2 - marker_size // 2
+            cell_center_y = self.offset_y + sy * self.tile_size + self.tile_size // 2 - marker_size // 2
+            self.draw_filled_rect(cell_center_x, cell_center_y, marker_size, marker_size, 0xFFFF0000)  # Red for start
+        
+        if self.exit:
+            ex, ey = self.exit
+            cell_center_x = self.offset_x + ex * self.tile_size + self.tile_size // 2 - marker_size // 2
+            cell_center_y = self.offset_y + ey * self.tile_size + self.tile_size // 2 - marker_size // 2
+            self.draw_filled_rect(cell_center_x, cell_center_y, marker_size, marker_size, 0xFF00FF00)  # Green for exit
+        
         return 0
 
     def key_hook(self, keycode, param):
-        if keycode == 65307 : # ESC
+        if keycode == 65307:  # ESC
             self.mlx.mlx_loop_exit(self.mlx_ptr)
         return 0
 
@@ -141,3 +169,14 @@ class MazeVisualizer:
 
     def run(self):
         self.mlx.mlx_loop(self.mlx_ptr)
+    
+    def solve(self):
+        """Calculate and display the solution path from start to exit."""
+        if not self.start or not self.exit:
+            return
+        start_cell = self.maze[self.start[1]][self.start[0]]
+        exit_cell = self.maze[self.exit[1]][self.exit[0]]
+        self.path = bfs(self.maze, start_cell, exit_cell)
+        self.show_path = True
+            
+
