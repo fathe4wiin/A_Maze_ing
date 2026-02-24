@@ -71,9 +71,9 @@ def main():
                     wall_color=selected_colors['wall'],
                     pattern_color=selected_colors['pattern'],
                     start=config.ENTRY,
-                    exit=config.EXIT
+                    exit=config.EXIT,
+                    perfect=config.PERFECT
                 )
-                viz.solve()
                 viz.run()
             if quit_btn.is_clicked(x, y):
                 start_btn.destroy()
