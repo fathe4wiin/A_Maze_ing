@@ -56,9 +56,6 @@ class MazeVisualizer:
         
         # Precompute static 42 pattern
         self._compute_42_pattern()
-        
-        # Flag to track if maze needs redrawing
-        self.needs_redraw = True
 
         # Clear background
         self.color_change(0, 0)
@@ -66,7 +63,9 @@ class MazeVisualizer:
         # Draw the maze
         self.draw_maze()
         
-        # Draw start/exit markers once
+
+
+    def draw_start_exit(self):
         marker_size = max(4, self.tile_size // 4)
         if self.start:
             sx, sy = self.start
@@ -78,7 +77,6 @@ class MazeVisualizer:
             cell_center_x = self.offset_x + ex * self.tile_size + self.tile_size // 2 - marker_size // 2
             cell_center_y = self.offset_y + ey * self.tile_size + self.tile_size // 2 - marker_size // 2
             self.draw_filled_rect(cell_center_x, cell_center_y, marker_size, marker_size, 0xFF00FF00)  # Green for exit
-
     def draw_pixel(self, x, y, color):
         if 0 <= x < self.win_width and 0 <= y < self.win_height:
             self.mlx.mlx_pixel_put(self.mlx_ptr, self.win, x, y, color)
@@ -203,6 +201,8 @@ class MazeVisualizer:
                 if cell.walls['W']:
                     self.draw_line(x, y, x, y + self.tile_size, self.wall_color)
 
+        self.draw_start_exit()
+
     def render_loop(self, param):
         # Draw existing buttons (don't recreate them)
         for btn in self.buttons:
@@ -233,22 +233,59 @@ class MazeVisualizer:
         marker_size = max(4, self.tile_size // 4)
         if self.show_path == True:
             # Clear the path by drawing over it with cell color
-            for cell in self.path:
-                cell_center_x = self.offset_x + cell.x * self.tile_size + self.tile_size // 2 - marker_size // 2
-                cell_center_y = self.offset_y + cell.y * self.tile_size + self.tile_size // 2 - marker_size // 2
-                self.draw_filled_rect(cell_center_x, cell_center_y, marker_size, marker_size, self.cell_color)
+            for i in range(len(self.path) - 1):
+                cellA = self.path[i]
+                cellB = self.path[i + 1]
+                marker_offset = 5
+                xA = self.offset_x + cellA.x * self.tile_size + self.tile_size // 2
+                yA = self.offset_y + cellA.y * self.tile_size + self.tile_size // 2
+                xB = self.offset_x + cellB.x * self.tile_size + self.tile_size // 2
+                yB = self.offset_y + cellB.y * self.tile_size + self.tile_size // 2
+
+                rect_x1 = min(xA, xB) - marker_offset
+                rect_y1 = min(yA, yB) - marker_offset
+                rect_x2 = max(xA, xB) + marker_offset
+                rect_y2 = max(yA, yB) + marker_offset
+
+                rect_width = rect_x2 - rect_x1
+                rect_height = rect_y2 - rect_y1
+
+                self.draw_filled_rect(rect_x1, rect_y1, rect_width, rect_height, self.cell_color)
             self.show_path = False
+            self.draw_start_exit()
             return
         start_cell = self.maze[self.start[1]][self.start[0]]
         exit_cell = self.maze[self.exit[1]][self.exit[0]]
         self.path = bfs(self.maze, start_cell, exit_cell)
         # Draw the path immediately
-        for cell in self.path:
-            cell_center_x = self.offset_x + cell.x * self.tile_size + self.tile_size // 2 - marker_size // 2
-            cell_center_y = self.offset_y + cell.y * self.tile_size + self.tile_size // 2 - marker_size // 2
-            self.draw_filled_rect(cell_center_x, cell_center_y, marker_size, marker_size, 0xFF00FF00)  # Green
-        self.show_path = True
+        for i in range(len(self.path) - 1):
+            cellA = self.path[i]
+            cellB = self.path[i + 1]
+            marker_offset = 5
+            xA = self.offset_x + cellA.x * self.tile_size + self.tile_size // 2
+            yA = self.offset_y + cellA.y * self.tile_size + self.tile_size // 2
+            xB = self.offset_x + cellB.x * self.tile_size + self.tile_size // 2
+            yB = self.offset_y + cellB.y * self.tile_size + self.tile_size // 2
 
+            rect_x1 = min(xA, xB) - marker_offset
+            rect_y1 = min(yA, yB) - marker_offset
+            rect_x2 = max(xA, xB) + marker_offset
+            rect_y2 = max(yA, yB) + marker_offset
+
+            rect_width = rect_x2 - rect_x1
+            rect_height = rect_y2 - rect_y1
+
+            self.draw_filled_rect(rect_x1, rect_y1, rect_width, rect_height, 0xFF00FF00)
+
+
+
+
+        # for cell in self.path:
+        #     cell_center_x = self.offset_x + cell.x * self.tile_size + self.tile_size // 2 - marker_size // 2
+        #     cell_center_y = self.offset_y + cell.y * self.tile_size + self.tile_size // 2 - marker_size // 2
+        #     self.draw_filled_rect(cell_center_x, cell_center_y, marker_size, marker_size, 0xFF00FF00)  # Green
+        self.show_path = True
+        self.draw_start_exit()
 
     def regen(self):
         """Regenerate the maze with a new random layout."""

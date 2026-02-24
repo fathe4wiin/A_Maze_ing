@@ -17,29 +17,29 @@ def main():
     def set_bg_color(color):
         def setter():
             selected_colors['bg'] = color
+            draw_menu()  # Redraw menu to update preview
         return setter
 
     def set_cell_color(color):
         def setter():
             selected_colors['cell'] = color
+            draw_menu()  # Redraw menu to update preview
         return setter
 
     def set_wall_color(color):
         def setter():
             selected_colors['wall'] = color
+            draw_menu()  # Redraw menu to update preview
         return setter
 
     def set_pattern_color(color):
         def setter():
             selected_colors['pattern'] = color
+            draw_menu()  # Redraw menu to update preview
         return setter
 
-    config: Config = Config("config.txt")
-    maze = MazeGen()
-    layout = maze.create_cell_layout(config.WIDTH, config.HEIGHT)
-    gen = maze.generate_maze(layout, config.PERFECT)
-
-    def render_loop(_):
+    def draw_menu():
+        """Draw all menu elements - called once initially and when colors change."""
         start_btn.draw()
         bg_btn.draw()
         wall_btn.draw()
@@ -49,14 +49,18 @@ def main():
         for btn in bg_colors + cell_colors + wall_colors + patt_colors:
             btn.draw()
         # Draw color preview rectangles next to each category button
-        # BG preview (right side of bg_btn: x=304+150+5=459, y=208, 30x50)
         win.draw_filled_rect(459, 208, 18, 50, selected_colors['bg'])
-        # Cell preview (right side of cell_btn: x=545+150+5=700, y=208, 30x50)
         win.draw_filled_rect(700, 208, 18, 50, selected_colors['cell'])
-        # Wall preview (right side of wall_btn: x=304+150+5=459, y=357, 30x50)
         win.draw_filled_rect(459, 357, 18, 50, selected_colors['wall'])
-        # Pattern preview (right side of patt_btn: x=545+150+5=700, y=357, 30x50)
         win.draw_filled_rect(700, 357, 18, 50, selected_colors['pattern'])
+
+    config: Config = Config("config.txt")
+    maze = MazeGen()
+    layout = maze.create_cell_layout(config.WIDTH, config.HEIGHT)
+    maze.generate_maze(layout, config.PERFECT)
+
+    def render_loop(_):
+        return 0
 
     def mouse_hook(button, x, y, _):
         if button == 1:
@@ -137,6 +141,9 @@ def main():
     ]
 
     quit_btn = Button(win.mlx, win.mlx_ptr, win.win, 400, 530, 200, 50, 0xff272727, "Quit", text_color=0xFFFFFFFF)
+    
+    # Draw menu once initially
+    draw_menu()
     
     win.mlx.mlx_loop(win.mlx_ptr)
 
