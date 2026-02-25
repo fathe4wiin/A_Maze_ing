@@ -4,6 +4,7 @@ from cell import Cell
 from maze_solver import bfs
 from maze_gen import MazeGen
 from maze_algo import MazeAlgo
+from player import Player
 
 class MazeVisualizer:
     def __init__(self, maze, mlx_ptr=None, win=None, bg_color=0x55FFFFFF, cell_color=0xFFFFFFFF, wall_color=0xFF000000, pattern_color=0xFFFFD700, start=None, exit=None, perfect=False):
@@ -62,8 +63,8 @@ class MazeVisualizer:
         
         # Draw the maze
         self.draw_maze()
-        
 
+        self.player = Player(self.mlx, self.mlx_ptr, self.win, self.start[0], self.start[1], self.cell_color, self.maze, self.tile_size, self.offset_x, self.offset_y)
 
     def draw_start_exit(self):
         marker_size = max(4, self.tile_size // 4)
@@ -207,11 +208,55 @@ class MazeVisualizer:
         # Draw existing buttons (don't recreate them)
         for btn in self.buttons:
             btn.draw()
+
+        # Draw the path if visible
+        if self.show_path and self.path:
+            self.draw_path()
+
+        # Draw the player
+        self.player.draw()
+
         return 0
+
+    def draw_path(self):
+        """Draw the solution path."""
+        marker_offset = 5
+        for i in range(len(self.path) - 1):
+            cellA = self.path[i]
+            cellB = self.path[i + 1]
+            xA = self.offset_x + cellA.x * self.tile_size + self.tile_size // 2
+            yA = self.offset_y + cellA.y * self.tile_size + self.tile_size // 2
+            xB = self.offset_x + cellB.x * self.tile_size + self.tile_size // 2
+            yB = self.offset_y + cellB.y * self.tile_size + self.tile_size // 2
+
+            rect_x1 = min(xA, xB) - marker_offset
+            rect_y1 = min(yA, yB) - marker_offset
+            rect_x2 = max(xA, xB) + marker_offset
+            rect_y2 = max(yA, yB) + marker_offset
+
+            rect_width = rect_x2 - rect_x1
+            rect_height = rect_y2 - rect_y1
+
+            self.draw_filled_rect(rect_x1, rect_y1, rect_width, rect_height, 0xFF00FF00)
 
     def key_hook(self, keycode, param):
         if keycode == 65307:  # ESC
             self.mlx.mlx_loop_exit(self.mlx_ptr)
+        w = 119
+        a = 97
+        s = 115
+        d = 100
+
+        if keycode == w:
+            self.player.move("up")
+        elif keycode == a:
+            self.player.move("left")
+        elif keycode == s:
+            self.player.move("down")
+        elif keycode == d:
+            self.player.move("right")
+
+        print(keycode)
         return 0
 
     def mouse_hook(self, button, x, y, param):
@@ -230,62 +275,18 @@ class MazeVisualizer:
     def solve(self):
         if not self.start or not self.exit:
             return
-        marker_size = max(4, self.tile_size // 4)
-        if self.show_path == True:
-            # Clear the path by drawing over it with cell color
-            for i in range(len(self.path) - 1):
-                cellA = self.path[i]
-                cellB = self.path[i + 1]
-                marker_offset = 5
-                xA = self.offset_x + cellA.x * self.tile_size + self.tile_size // 2
-                yA = self.offset_y + cellA.y * self.tile_size + self.tile_size // 2
-                xB = self.offset_x + cellB.x * self.tile_size + self.tile_size // 2
-                yB = self.offset_y + cellB.y * self.tile_size + self.tile_size // 2
-
-                rect_x1 = min(xA, xB) - marker_offset
-                rect_y1 = min(yA, yB) - marker_offset
-                rect_x2 = max(xA, xB) + marker_offset
-                rect_y2 = max(yA, yB) + marker_offset
-
-                rect_width = rect_x2 - rect_x1
-                rect_height = rect_y2 - rect_y1
-
-                self.draw_filled_rect(rect_x1, rect_y1, rect_width, rect_height, self.cell_color)
+        
+        if self.show_path:
+            # Toggle path off - redraw maze to clear path
             self.show_path = False
-            self.draw_start_exit()
+            self.draw_maze()
             return
+        
+        # Calculate and show path
         start_cell = self.maze[self.start[1]][self.start[0]]
         exit_cell = self.maze[self.exit[1]][self.exit[0]]
         self.path = bfs(self.maze, start_cell, exit_cell)
-        # Draw the path immediately
-        for i in range(len(self.path) - 1):
-            cellA = self.path[i]
-            cellB = self.path[i + 1]
-            marker_offset = 5
-            xA = self.offset_x + cellA.x * self.tile_size + self.tile_size // 2
-            yA = self.offset_y + cellA.y * self.tile_size + self.tile_size // 2
-            xB = self.offset_x + cellB.x * self.tile_size + self.tile_size // 2
-            yB = self.offset_y + cellB.y * self.tile_size + self.tile_size // 2
-
-            rect_x1 = min(xA, xB) - marker_offset
-            rect_y1 = min(yA, yB) - marker_offset
-            rect_x2 = max(xA, xB) + marker_offset
-            rect_y2 = max(yA, yB) + marker_offset
-
-            rect_width = rect_x2 - rect_x1
-            rect_height = rect_y2 - rect_y1
-
-            self.draw_filled_rect(rect_x1, rect_y1, rect_width, rect_height, 0xFF00FF00)
-
-
-
-
-        # for cell in self.path:
-        #     cell_center_x = self.offset_x + cell.x * self.tile_size + self.tile_size // 2 - marker_size // 2
-        #     cell_center_y = self.offset_y + cell.y * self.tile_size + self.tile_size // 2 - marker_size // 2
-        #     self.draw_filled_rect(cell_center_x, cell_center_y, marker_size, marker_size, 0xFF00FF00)  # Green
         self.show_path = True
-        self.draw_start_exit()
 
     def regen(self):
         """Regenerate the maze with a new random layout."""
@@ -309,3 +310,8 @@ class MazeVisualizer:
             cell_center_x = self.offset_x + ex * self.tile_size + self.tile_size // 2 - marker_size // 2
             cell_center_y = self.offset_y + ey * self.tile_size + self.tile_size // 2 - marker_size // 2
             self.draw_filled_rect(cell_center_x, cell_center_y, marker_size, marker_size, 0xFF00FF00)
+        self.player.x = self.start[0]
+        self.player.y = self.start[1]
+        self.player.maze = self.maze
+
+

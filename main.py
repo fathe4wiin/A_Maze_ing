@@ -148,6 +148,10 @@ def main():
     win.mlx.mlx_loop(win.mlx_ptr)
 
 
+
+
+
+
 if __name__ == "__main__":
     main()
 
