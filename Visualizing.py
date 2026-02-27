@@ -47,6 +47,7 @@ class MazeVisualizer:
         else:
             self.win = self.mlx.mlx_new_window(self.mlx_ptr, self.win_width, self.win_height, "Maze Visualizer")
         
+        self.player = Player(self.mlx, self.mlx_ptr, self.win, self.start[0], self.start[1], self.cell_color, self.maze, self.tile_size, self.offset_x, self.offset_y, start=self.start, exit=self.exit)
         self.mlx.mlx_key_hook(self.win, self.key_hook, None)
         self.mlx.mlx_loop_hook(self.mlx_ptr, self.render_loop, None)
         self.mlx.mlx_mouse_hook(self.win, self.mouse_hook, None)
@@ -64,7 +65,7 @@ class MazeVisualizer:
         # Draw the maze
         self.draw_maze()
 
-        self.player = Player(self.mlx, self.mlx_ptr, self.win, self.start[0], self.start[1], self.cell_color, self.maze, self.tile_size, self.offset_x, self.offset_y)
+        
 
     def draw_start_exit(self):
         marker_size = max(4, self.tile_size // 4)
@@ -113,6 +114,34 @@ class MazeVisualizer:
         for i in range(x, x + width):
             for j in range(y, y + height):
                 self.draw_pixel(i, j, color)
+
+    def get_dark_color(self, color):
+        """Return the lightened version of a color using simple ifs."""
+        if color == 0xFF2196F3:
+            return 0xFF90CAF9  # Blue lighter
+        if color == 0xFFE53935:
+            return 0xFFEF9A9A  # Red lighter
+        if color == 0xFFFB8C00:
+            return 0xFFFFCC80  # Orange lighter
+        if color == 0xFF43A047:
+            return 0xFFA5D6A7  # Green lighter
+        if color == 0xFF8E24AA:
+            return 0xFFCE93D8  # Purple lighter
+        if color == 0xFF00BCD4:
+            return 0xFF80DEEA  # Cyan lighter
+        if color == 0xFFFF4081:
+            return 0xFFFF80AB  # Pink lighter
+        if color == 0xFFFFD700:
+            return 0xFFFFE57F  # Gold lighter
+        if color == 0xFF00FF00:
+            return 0xFF90EE90  # Lime lighter
+        if color == 0xFF87CEEB:
+            return 0xFFB0E0E6  # Sky Blue lighter
+        if color == 0xFF673AB7:
+            return 0xFFB39DDB  # Deep Purple lighter
+        if color == 0xFFFF9800:
+            return 0xFFFFCC80  # Orange pattern lighter
+        return 0xFFCFCFCF  # Default light gray
 
     def _compute_42_pattern(self):
         """Precompute the 42 pattern cells - called once."""
@@ -173,19 +202,21 @@ class MazeVisualizer:
 
     def draw_maze(self):
         """Draw the maze - called when maze changes."""
-        # Draw entire maze area with cell color
-        maze_pixel_width = self.width * self.tile_size
-        maze_pixel_height = self.height * self.tile_size
-        self.draw_filled_rect(self.offset_x, self.offset_y, maze_pixel_width, maze_pixel_height, self.cell_color)
-
-        # Draw 42 pattern highlights
+        # Draw entire maze area with cell color and assign color to each cell
         for row in self.maze:
             for cell in row:
                 x = self.offset_x + cell.x * self.tile_size
                 y = self.offset_y + cell.y * self.tile_size
                 
                 if (cell.x, cell.y) in self.text_cells:
-                    self.draw_filled_rect(x, y, self.tile_size, self.tile_size, self.highlight_color)
+                    cell.color = self.highlight_color
+                    cell.dark_color = self.get_dark_color(self.highlight_color)
+                else:
+                    cell.color = self.cell_color
+                    cell.dark_color = self.get_dark_color(self.cell_color)
+                cell.in_path = False  # Reset path flag
+                
+                self.draw_filled_rect(x, y, self.tile_size, self.tile_size, cell.color)
 
         # Draw walls on top
         for row in self.maze:
@@ -205,12 +236,15 @@ class MazeVisualizer:
         self.draw_start_exit()
 
     def render_loop(self, param):
+
+        if self.player.x == self.exit[0] and self.player.y == self.exit[1]:
+            self.regen()
         # Draw existing buttons (don't recreate them)
         for btn in self.buttons:
             btn.draw()
 
         # Draw the path if visible
-        if self.show_path and self.path:
+        if self.show_path:
             self.draw_path()
 
         # Draw the player
@@ -219,29 +253,28 @@ class MazeVisualizer:
         return 0
 
     def draw_path(self):
-        """Draw the solution path."""
-        marker_offset = 5
-        for i in range(len(self.path) - 1):
-            cellA = self.path[i]
-            cellB = self.path[i + 1]
-            xA = self.offset_x + cellA.x * self.tile_size + self.tile_size // 2
-            yA = self.offset_y + cellA.y * self.tile_size + self.tile_size // 2
-            xB = self.offset_x + cellB.x * self.tile_size + self.tile_size // 2
-            yB = self.offset_y + cellB.y * self.tile_size + self.tile_size // 2
-
-            rect_x1 = min(xA, xB) - marker_offset
-            rect_y1 = min(yA, yB) - marker_offset
-            rect_x2 = max(xA, xB) + marker_offset
-            rect_y2 = max(yA, yB) + marker_offset
-
-            rect_width = rect_x2 - rect_x1
-            rect_height = rect_y2 - rect_y1
-
-            self.draw_filled_rect(rect_x1, rect_y1, rect_width, rect_height, 0xFF00FF00)
+        """Draw the solution path by darkening the cells."""
+        for cell in self.path:
+            x = self.offset_x + cell.x * self.tile_size
+            y = self.offset_y + cell.y * self.tile_size
+            cell.in_path = True
+            self.draw_filled_rect(x, y, self.tile_size, self.tile_size, cell.dark_color)
+        # Redraw walls on path cells
+        for cell in self.path:
+            x = self.offset_x + cell.x * self.tile_size
+            y = self.offset_y + cell.y * self.tile_size
+            if cell.walls['N']:
+                self.draw_line(x, y, x + self.tile_size, y, self.wall_color)
+            if cell.walls['S']:
+                self.draw_line(x, y + self.tile_size, x + self.tile_size, y + self.tile_size, self.wall_color)
+            if cell.walls['E']:
+                self.draw_line(x + self.tile_size, y, x + self.tile_size, y + self.tile_size, self.wall_color)
+            if cell.walls['W']:
+                self.draw_line(x, y, x, y + self.tile_size, self.wall_color)
+        # Redraw start/exit markers
+        self.draw_start_exit()
 
     def key_hook(self, keycode, param):
-        if keycode == 65307:  # ESC
-            self.mlx.mlx_loop_exit(self.mlx_ptr)
         w = 119
         a = 97
         s = 115
@@ -277,7 +310,9 @@ class MazeVisualizer:
             return
         
         if self.show_path:
-            # Toggle path off - redraw maze to clear path
+            # Toggle path off - reset in_path flags and redraw maze
+            for cell in self.path:
+                cell.in_path = False
             self.show_path = False
             self.draw_maze()
             return

@@ -2,7 +2,7 @@ from cell import Cell
 
 
 class Player:
-    def __init__(self, mlx, mlx_ptr, win, x, y, cell_color, maze:list[list[Cell]], tile_size=64, offset_x=0, offset_y=0, color=0xFF8000ff):
+    def __init__(self, mlx, mlx_ptr, win, x, y, cell_color, maze:list[list[Cell]], tile_size=64, offset_x=0, offset_y=0, color=0xFF8000ff, start=None, exit=None):
         self.mlx = mlx
         self.mlx_ptr = mlx_ptr
         self.win = win
@@ -15,6 +15,8 @@ class Player:
         self.radius = tile_size // 3
         self.cell_color = cell_color
         self.maze = maze
+        self.start = start  # (x, y) tuple
+        self.exit = exit    # (x, y) tuple
 
     def draw(self):
         """Draw the player as a circle."""
@@ -51,10 +53,32 @@ class Player:
         center_x = self.offset_x + self.x * self.tile_size + self.tile_size // 2
         center_y = self.offset_y + self.y * self.tile_size + self.tile_size // 2
         
+        # Get the cell's actual color (use dark_color if cell is in path)
+        cell = self.maze[self.y][self.x]
+        if cell.in_path:
+            cell_color = cell.dark_color
+        else:
+            cell_color = cell.color
+        
         for dy in range(-self.radius, self.radius + 1):
             for dx in range(-self.radius, self.radius + 1):
                 if dx * dx + dy * dy <= self.radius * self.radius:
-                    self.mlx.mlx_pixel_put(self.mlx_ptr, self.win, center_x + dx, center_y + dy, self.cell_color)
+                    self.mlx.mlx_pixel_put(self.mlx_ptr, self.win, center_x + dx, center_y + dy, cell_color)
+        
+        # Redraw start/exit markers if player was on them
+        marker_size = max(4, self.tile_size // 4)
+        if self.start and (self.x, self.y) == self.start:
+            mx = center_x - marker_size // 2
+            my = center_y - marker_size // 2
+            for i in range(marker_size):
+                for j in range(marker_size):
+                    self.mlx.mlx_pixel_put(self.mlx_ptr, self.win, mx + i, my + j, 0xFFFF0000)
+        if self.exit and (self.x, self.y) == self.exit:
+            mx = center_x - marker_size // 2
+            my = center_y - marker_size // 2
+            for i in range(marker_size):
+                for j in range(marker_size):
+                    self.mlx.mlx_pixel_put(self.mlx_ptr, self.win, mx + i, my + j, 0xFF00FF00)
 
     def can_move(self, current: Cell, dest: Cell):
         if not current or not dest:
