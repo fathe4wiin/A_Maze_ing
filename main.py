@@ -4,6 +4,7 @@ from parsing import Config
 from Visualizing import MazeVisualizer
 from mlx_ui import Label, Button, Window
 from mlx import Mlx
+from gen_outputfile import generate_output_file
 
 def main():
     # Selected colors (will be passed to visualizer)
@@ -58,6 +59,8 @@ def main():
     maze = MazeGen()
     layout = maze.create_cell_layout(config.WIDTH, config.HEIGHT)
     maze.generate_maze(layout, config.PERFECT)
+
+    generate_output_file(layout, config.ENTRY, config.EXIT, config.OUTPUT_FILE)
 
     def render_loop(_):
         pass

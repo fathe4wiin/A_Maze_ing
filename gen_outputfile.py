@@ -1,8 +1,8 @@
 from cell import Cell
 from maze_solver import bfs
 
-def generate_output_file(maze: list[list[Cell]], start_coord: tuple, exit_coord: tuple):
-    with open("output_maze.txt", 'w') as f:
+def generate_output_file(maze: list[list[Cell]], start_coord: tuple, exit_coord: tuple, filename: str):
+    with open(filename, 'w') as f:
 
         for row in maze:
             line = ""
