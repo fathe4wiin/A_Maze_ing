@@ -5,6 +5,7 @@ from maze_solver import bfs
 from maze_gen import MazeGen
 from maze_algo import MazeAlgo
 from player import Player
+from stats import Stats
 
 class MazeVisualizer:
     def __init__(self, maze, mlx_ptr=None, win=None, bg_color=0x55FFFFFF, cell_color=0xFFFFFFFF, wall_color=0xFF000000, pattern_color=0xFFFFD700, start=None, exit=None, perfect=False):
@@ -51,6 +52,8 @@ class MazeVisualizer:
         self.mlx.mlx_key_hook(self.win, self.key_hook, None)
         self.mlx.mlx_loop_hook(self.mlx_ptr, self.render_loop, None)
         self.mlx.mlx_mouse_hook(self.win, self.mouse_hook, None)
+
+        self.stats = Stats()
         
         # Initialize UI buttons once
         self.buttons = []
@@ -163,7 +166,7 @@ class MazeVisualizer:
 
     def setup_ui(self):
         """Create UI buttons once - not every frame."""
-        from mlx_ui import Button
+        from mlx_ui import Button, Label
         
         button_color = 0xFF272727
         text_color = 0xFFFFFFFF
@@ -173,9 +176,9 @@ class MazeVisualizer:
             x=1020, y=502,
             w=250, h=50,
             color=button_color,
-            text="Regenerate Maze",
+            text="Reset & Regenerate",
             text_color=text_color,
-            on_click=lambda: self.regen()
+            on_click=lambda: (self.player_reset(), self.score_clear())
         )
         
         btn_toggle_path = Button(
@@ -199,6 +202,16 @@ class MazeVisualizer:
         )
         
         self.buttons = [btn_regenerate, btn_toggle_path, btn_quit]
+
+        self.mazes_solved = Label(self.mlx, self.mlx_ptr, self.win, 1040, 12, "Mazes Solved:", 0xFF000000)
+        self.mazes_solved.draw()
+        self.mazes_score = Label(self.mlx, self.mlx_ptr, self.win, 1200, 12, f"{self.stats.mazes_solved}", 0xFF000000)
+        self.mazes_score.draw()
+
+        self.steps_lbl = Label(self.mlx, self.mlx_ptr, self.win, 1040, 42, "Moves:", 0xFF000000)
+        self.steps_lbl.draw()
+        self.steps = Label(self.mlx, self.mlx_ptr, self.win, 1200, 42, f"{self.stats.steps}", 0xFF000000)
+        self.steps.draw()
 
     def draw_maze(self):
         """Draw the maze - called when maze changes."""
@@ -236,9 +249,8 @@ class MazeVisualizer:
         self.draw_start_exit()
 
     def render_loop(self, param):
-
         if self.player.x == self.exit[0] and self.player.y == self.exit[1]:
-            self.regen()
+            self.player_reset()
         # Draw existing buttons (don't recreate them)
         for btn in self.buttons:
             btn.draw()
@@ -249,6 +261,7 @@ class MazeVisualizer:
 
         # Draw the player
         self.player.draw()
+
 
         return 0
 
@@ -281,15 +294,24 @@ class MazeVisualizer:
         d = 100
 
         if keycode == w:
-            self.player.move("up")
+            if self.player.move("up"):
+                self.stats.add_step()
+                self.steps.update(0xFFD9D9D9, text=f"{self.stats.steps}")
         elif keycode == a:
-            self.player.move("left")
+            if self.player.move("left"):
+                self.stats.add_step()
+                self.steps.update(0xFFD9D9D9, text=f"{self.stats.steps}")
         elif keycode == s:
-            self.player.move("down")
+            if self.player.move("down"):
+                self.stats.add_step()
+                self.steps.update(0xFFD9D9D9, text=f"{self.stats.steps}")
         elif keycode == d:
-            self.player.move("right")
+            if self.player.move("right"):
+                self.stats.add_step()
+                self.steps.update(0xFFD9D9D9, text=f"{self.stats.steps}")
 
-        print(keycode)
+        print(self.stats.steps)
+        print(self.steps.text)
         return 0
 
     def mouse_hook(self, button, x, y, param):
@@ -348,5 +370,18 @@ class MazeVisualizer:
         self.player.x = self.start[0]
         self.player.y = self.start[1]
         self.player.maze = self.maze
+
+    def player_reset(self):
+        self.regen()
+        self.stats.add_maze()
+        self.steps.update(0xFFD9D9D9, text=f"{self.stats.steps}")
+        self.mazes_score.update(0xFFD9D9D9, text=f"{self.stats.mazes_solved}")
+        self.steps.draw()
+
+    def score_clear(self):
+        self.stats.mazes_solved = 0
+        self.stats.steps = 0
+        self.mazes_score.update(0xFFD9D9D9, f"{self.stats.mazes_solved}")
+        self.steps.update(0xFFD9D9D9, f"{self.stats.steps}")
 
 

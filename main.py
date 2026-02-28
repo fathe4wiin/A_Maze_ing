@@ -91,8 +91,8 @@ def main():
         return 0
     
     win = Window(1280, 720, "Maze Generator", on_mouse=mouse_hook, on_loop=render_loop, on_key=key_hook)
-    win.draw_filled_rect(0, 0, 1000, 720, 0xFF94AFFF)
-    win.draw_filled_rect(1000, 0, 280, 720, 0xFF4755ff)
+    win.draw_filled_rect(0, 0, 1000, 720, 0xFF7D7D7D)
+    win.draw_filled_rect(1000, 0, 280, 720, 0xFFD9D9D9)
     start_btn = Button(win.mlx, win.mlx_ptr, win.win, 380, 141, 250, 50, 0xff272727, "Generate Maze", text_color=0xffffff)
     bg_btn = Button(win.mlx, win.mlx_ptr, win.win, 304, 208, 150, 50, 0xff272727, "BG Color", text_color=0xFFFFFFFF)
     wall_btn = Button(win.mlx, win.mlx_ptr, win.win, 304, 357, 150, 50, 0xff272727, "Wall Color", text_color=0xFFFFFFFF)

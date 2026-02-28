@@ -34,17 +34,28 @@ class Player:
         rows = len(self.maze)
         cols = len(self.maze[0]) if rows > 0 else 0
 
-        self.clear()
         if direction == 'up' and self.y > 0 and self.can_move(self.maze[self.y][self.x], self.maze[self.y - 1][self.x]):
+            self.clear()
             self.y -= 1
+            self.draw()
+            return True
         elif direction == 'down' and self.y < rows - 1 and self.can_move(self.maze[self.y][self.x], self.maze[self.y + 1][self.x]):
+            self.clear()
             self.y += 1
+            self.draw()
+            return True
         elif direction == 'left' and self.x > 0 and self.can_move(self.maze[self.y][self.x], self.maze[self.y][self.x - 1]):
+            self.clear()
             self.x -= 1
+            self.draw()
+            return True
         elif direction == 'right' and self.x < cols - 1 and self.can_move(self.maze[self.y][self.x], self.maze[self.y][self.x + 1]):
+            self.clear()
             self.x += 1
+            self.draw()
+            return True
 
-        self.draw()
+        return False
     def cleanup(self):
         """Clean up resources (no longer needed for circle drawing)."""
         pass

@@ -70,6 +70,22 @@ class Label:
     def draw(self):
         """Draw the label on the window."""
         self.mlx.mlx_string_put(self.mlx_ptr, self.win, self.x, self.y, self.color, self.text)
+    def clear(self, bg):
+        self.draw_filled_rect(self.x, self.y, len(self.text) * 10, 20, bg)
+
+    def update(self, bg, text=None):
+        self.clear(bg)
+        if text is not None:
+            self.text = text
+        self.draw()
+
+    def draw_filled_rect(self, x, y, width, height, color):
+        for i in range(x, x + width):
+            for j in range(y, y + height):
+                self.draw_pixel(i, j, color)
+
+    def draw_pixel(self, x, y, color):
+        self.mlx.mlx_pixel_put(self.mlx_ptr, self.win, x, y, color)
 
 class Button:
     def __init__(self, mlx, mlx_ptr, win, x, y, w, h, color, text, text_color=0xFFFFFFFF, on_click=None):
