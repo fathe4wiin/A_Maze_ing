@@ -1,4 +1,5 @@
 import sys
+import random
 from maze_gen import MazeGen
 from parsing import Config
 from Visualizing import MazeVisualizer
@@ -56,11 +57,20 @@ def main():
         win.draw_filled_rect(700, 357, 18, 50, selected_colors['pattern'])
 
     config: Config = Config("config.txt")
+    random.seed(config.SEED)
+    pattern = False
+
+    if config.HEIGHT >= 7 and config.WIDTH >= 9:
+        pattern = True
+
     maze = MazeGen()
     layout = maze.create_cell_layout(config.WIDTH, config.HEIGHT)
-    maze.generate_maze(layout, config.PERFECT)
+    maze = maze.generate_maze(layout, config, pattern)
 
-    generate_output_file(layout, config.ENTRY, config.EXIT, config.OUTPUT_FILE)
+    if not maze:
+        print("error")
+        return
+    generate_output_file(maze, config.ENTRY, config.EXIT, config.OUTPUT_FILE)
 
     def render_loop(_):
         pass
@@ -69,7 +79,7 @@ def main():
             if start_btn.is_clicked(x, y):
                 start_btn.destroy()
                 viz = MazeVisualizer(
-                    layout,
+                    maze,
                     mlx_ptr=win.mlx_ptr,
                     win=win.win,
                     bg_color=selected_colors['bg'],
@@ -78,7 +88,9 @@ def main():
                     pattern_color=selected_colors['pattern'],
                     start=config.ENTRY,
                     exit=config.EXIT,
-                    perfect=config.PERFECT
+                    perfect=config.PERFECT,
+                    patt=pattern,
+                    config=config
                 )
                 viz.run()
             if quit_btn.is_clicked(x, y):

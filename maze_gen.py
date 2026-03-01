@@ -1,5 +1,6 @@
 from cell import Cell
 from maze_algo import MazeAlgo
+from parsing import Config
 
 class MazeGen():
     def __init__(self):
@@ -48,6 +49,6 @@ class MazeGen():
         flood_fill(0, 0)
         return layout
     
-    def generate_maze(self, layout: list[list[Cell]], perfect: bool):
-        return MazeAlgo.generate_maze(layout, 0, 0, perfect)
+    def generate_maze(self, layout: list[list[Cell]], config: Config, pattern):
+        return MazeAlgo.generate_maze(layout, 0, 0, config, pattern)
     

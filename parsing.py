@@ -11,7 +11,8 @@ class Parsing:
             "ENTRY": lambda v: tuple(map(int, v.split(','))),
             "EXIT": lambda v: tuple(map(int, v.split(','))),
             "OUTPUT_FILE": str,
-            "PERFECT": lambda v: v.lower() == "true"
+            "PERFECT": lambda v: v.lower() == "true",
+            "SEED": int
         }
 
         config = dict()
@@ -52,6 +53,7 @@ class Config:
         self.EXIT = None
         self.OUTPUT_FILE = None
         self.PERFECT = None
+        self.SEED = None
 
         if filename:
             entries = Parsing.parse_config(filename)

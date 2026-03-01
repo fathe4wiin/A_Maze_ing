@@ -8,10 +8,11 @@ from player import Player
 from stats import Stats
 
 class MazeVisualizer:
-    def __init__(self, maze, mlx_ptr=None, win=None, bg_color=0x55FFFFFF, cell_color=0xFFFFFFFF, wall_color=0xFF000000, pattern_color=0xFFFFD700, start=None, exit=None, perfect=False):
+    def __init__(self, maze, mlx_ptr=None, win=None, bg_color=0x55FFFFFF, cell_color=0xFFFFFFFF, wall_color=0xFF000000, pattern_color=0xFFFFD700, start=None, exit=None, perfect=False, patt=True, config=None):
         self.maze = maze
         self.height = len(maze)
         self.width = len(maze[0])
+        self.config = config
         self.start = start  # (x, y) tuple for start cell
         self.exit = exit    # (x, y) tuple for exit cell
         self.path = []      # List of cells in the solution path
@@ -60,7 +61,11 @@ class MazeVisualizer:
         self.setup_ui()
         
         # Precompute static 42 pattern
-        self._compute_42_pattern()
+        self.patt = patt
+        if self.patt:
+            self._compute_42_pattern()
+        else:
+            self.text_cells = set()
 
         # Clear background
         self.color_change(0, 0)
@@ -349,7 +354,7 @@ class MazeVisualizer:
         """Regenerate the maze with a new random layout."""
         maze_gen = MazeGen()
         layout = maze_gen.create_cell_layout(self.width, self.height)
-        self.maze = maze_gen.generate_maze(layout, perfect=self.perfect)
+        self.maze = maze_gen.generate_maze(layout, self.config, self.patt)
         self.path = []
         self.show_path = False
         # Redraw the maze

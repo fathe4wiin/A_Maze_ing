@@ -1,22 +1,21 @@
 import random
 from cell import Cell
+from parsing import Config
 
 class MazeAlgo():
     def __init__(self, seed, perfect: bool):
         self.seed = seed
         self.perfect = perfect
-        random.seed(seed)
         
     @staticmethod
-    def generate_maze(maze: list[list[Cell]], start_x, start_y, perfect: bool, seed=None):
-        if seed is not None:
-            random.seed(seed)
+    def generate_maze(maze: list[list[Cell]], start_x, start_y, config: Config, pattern):
+        if is_in_42_pattern(config.ENTRY[0], config.ENTRY[1], config.WIDTH, config.HEIGHT, pattern) or is_in_42_pattern(config.EXIT[0], config.EXIT[1], config.WIDTH, config.HEIGHT, pattern):
+            return None
         
         stack = []
         current: Cell = maze[start_y][start_x]
         current.visited = True
-
-        mark_four_two(maze)
+        mark_four_two(maze, pattern)
         while True:
             unvisited_neighbors = []
             for direction, neighbor in current.neighbors.items():
@@ -28,7 +27,7 @@ class MazeAlgo():
                 height = len(maze)
                 width = len(maze[0])
                 # Only remove wall if neither cell is part of the 42 pattern
-                if not is_in_42_pattern(current.x, current.y, width, height) and not is_in_42_pattern(n_cell.x, n_cell.y, width, height):
+                if not is_in_42_pattern(current.x, current.y, width, height, pattern) and not is_in_42_pattern(n_cell.x, n_cell.y, width, height, pattern):
                     current.remove_wall_with(n_cell)
                 stack.append(current)
                 n_cell.visited = True
@@ -38,14 +37,12 @@ class MazeAlgo():
             else:
                 break
         
-        if not perfect:
-            unpefect_the_maze(maze)
+        if not config.PERFECT:
+            unpefect_the_maze(maze, pattern)
         return maze
 
 
-def unpefect_the_maze(maze: list[list[Cell]], seed=None):
-    if seed is not None:
-        random.seed(seed)
+def unpefect_the_maze(maze: list[list[Cell]], pattern):
     height = len(maze)
     width = len(maze[0])
     section_height = 2
@@ -53,7 +50,7 @@ def unpefect_the_maze(maze: list[list[Cell]], seed=None):
 
     for y in range(0, height - section_height + 1, section_height):
         for x in range(0, width - section_width + 1, section_width):
-            ruin_the_maze(maze, y, x, section_height, section_width)
+            ruin_the_maze(maze, y, x, section_height, section_width, pattern)
 
 
 def ruin_the_maze(
@@ -62,6 +59,7 @@ def ruin_the_maze(
     x: int,
     section_height: int,
     section_width: int,
+    pattern
 ):
     candidates = []
     for i in range(y, y + section_height):
@@ -75,8 +73,8 @@ def ruin_the_maze(
                     y <= ni < y + section_height and
                     x <= nj < x + section_width and 
                     cell.walls[d] and not
-                    is_in_42_pattern(nj, ni, len(maze[0]), len(maze)) and not
-                    is_in_42_pattern(cell.x, cell.y, len(maze[0]), len(maze))
+                    is_in_42_pattern(nj, ni, len(maze[0]), len(maze), pattern) and not
+                    is_in_42_pattern(cell.x, cell.y, len(maze[0]), len(maze), pattern)
                 ):
                     candidates.append((cell, neighbor))
     if candidates:
@@ -85,8 +83,10 @@ def ruin_the_maze(
         
         
 
-def is_in_42_pattern(x, y, maze_width, maze_height):
+def is_in_42_pattern(x, y, maze_width, maze_height, pattern):
     """Check if (x, y) is part of the '42' pattern centered in the maze."""
+    if pattern == False:
+        return
     four = [
         (0,0), (0,1), (0,2), # Left vertical
         (1,2),               # Middle horizontal
@@ -105,11 +105,11 @@ def is_in_42_pattern(x, y, maze_width, maze_height):
     return (x, y) in pattern_coords
 
 
-def mark_four_two(maze: list[list[Cell]]):
+def mark_four_two(maze: list[list[Cell]], pattern):
     height = len(maze)
     width = len(maze[0])
     for row in maze:
         for cell in row:
-            if is_in_42_pattern(cell.x, cell.y, width, height):
+            if is_in_42_pattern(cell.x, cell.y, width, height, pattern):
                 cell.visited = True
 
