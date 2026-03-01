@@ -1,7 +1,7 @@
 PYTHON = python3
 PIP = pip3
 
-MAIN = mazegen/a_maze_ing.py
+MAIN = mymaze/a_maze_ing.py
 
 .PHONY: all install run debug clean lint
 

@@ -1,1 +1,6 @@
-exclude README.md
+include README.md
+include config.txt
+include *.txt
+include *.toml
+include *.whl
+recursive-include mymaze *.py

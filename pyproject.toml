@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "A_Maze_ing"
+version = "0.1.0"
+authors = [
+  { name="aidbrm" },
+]
+description = "A maze generation and visualization tool"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    # list your dependencies here if any are from PyPI
+]
+
+[project.urls]
+"Homepage" = "https://github.com/fathe4wiin/A_Maze_ing"
+
+[project.scripts]
+mymaze = "mymaze.a_maze_ing:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mymaze*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.txt", "*.toml", "*.whl"]
