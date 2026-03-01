@@ -7,6 +7,7 @@ class Stats:
 
     def add_step(self):
         self.steps += 1
+
     def add_maze(self):
         self.mazes_solved += 1
         self.steps = 0
