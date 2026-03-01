@@ -314,9 +314,6 @@ class MazeVisualizer:
             if self.player.move("right"):
                 self.stats.add_step()
                 self.steps.update(0xFFD9D9D9, text=f"{self.stats.steps}")
-
-        print(self.stats.steps)
-        print(self.steps.text)
         return 0
 
     def mouse_hook(self, button, x, y, param):
