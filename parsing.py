@@ -54,10 +54,15 @@ class Config:
         self.OUTPUT_FILE = None
         self.PERFECT = None
         self.SEED = None
+        self.pattern: bool
 
         if filename:
             entries = Parsing.parse_config(filename)
             self.__dict__.update(entries)
+        if self.HEIGHT >= 7 and self.WIDTH >= 9:
+            self.pattern = True
+        else:
+            self.pattern = False
     
     
     

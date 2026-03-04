@@ -2,7 +2,7 @@ from cell import Cell
 
 
 class Player:
-    def __init__(self, mlx, mlx_ptr, win, x, y, cell_color, maze:list[list[Cell]], tile_size=64, offset_x=0, offset_y=0, color=0xFF8000ff, start=None, exit=None):
+    def __init__(self, mlx, mlx_ptr, win, x, y, cell_color, maze:list[list[Cell]], tile_size=64, offset_x=0, offset_y=0, player_color=0xFF8000ff, start=None, exit=None):
         self.mlx = mlx
         self.mlx_ptr = mlx_ptr
         self.win = win
@@ -11,7 +11,7 @@ class Player:
         self.tile_size = tile_size
         self.offset_x = offset_x
         self.offset_y = offset_y
-        self.color = color
+        self.color = player_color
         self.radius = tile_size // 3
         self.cell_color = cell_color
         self.maze = maze

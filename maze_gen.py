@@ -49,6 +49,6 @@ class MazeGen():
         flood_fill(0, 0)
         return layout
     
-    def generate_maze(self, layout: list[list[Cell]], config: Config, pattern):
-        return MazeAlgo.generate_maze(layout, 0, 0, config, pattern)
+    def generate_maze(self, layout: list[list[Cell]], config: Config):
+        return MazeAlgo.generate_maze(layout, 0, 0, config)
     

@@ -1,5 +1,6 @@
 import sys
 from mlx import Mlx
+from mlx_ui import Button, Label
 from cell import Cell
 from maze_solver import bfs
 from maze_gen import MazeGen
@@ -8,13 +9,15 @@ from player import Player
 from stats import Stats
 
 class MazeVisualizer:
-    def __init__(self, maze, mlx_ptr=None, win=None, bg_color=0x55FFFFFF, cell_color=0xFFFFFFFF, wall_color=0xFF000000, pattern_color=0xFFFFD700, start=None, exit=None, perfect=False, patt=True, config=None):
+    def __init__(self, maze, mlx=None, mlx_ptr=None, win=None, player_color=0x55FFFFFF, cell_color=0xFFFFFFFF, wall_color=0xFF000000, pattern_color=0xFFFFD700, config=None, menu=None):
+        self.running = False
+        self.menu = menu  # Reference to menu for switching back
         self.maze = maze
-        self.height = len(maze)
-        self.width = len(maze[0])
+        self.height = config.HEIGHT
+        self.width = config.WIDTH
         self.config = config
-        self.start = start  # (x, y) tuple for start cell
-        self.exit = exit    # (x, y) tuple for exit cell
+        self.start = config.ENTRY  # (x, y) tuple for start cell
+        self.exit = config.EXIT    # (x, y) tuple for exit cell
         self.path = []      # List of cells in the solution path
         self.show_path = False  # Flag to control path visibility
         
@@ -30,12 +33,16 @@ class MazeVisualizer:
         # Colors (from parameters)
         self.cell_color = cell_color
         self.wall_color = wall_color
-        self.background_color = bg_color
+        self.player_color = player_color
+        self.background_color = 0xFF7D7D7D
         self.highlight_color = pattern_color
 
-        self.mlx = Mlx()
+        if mlx:
+            self.mlx = mlx
+        else:
+            self.mlx = Mlx()
 
-        self.perfect = perfect
+        self.perfect = config.PERFECT
         if mlx_ptr:
             self.mlx_ptr = mlx_ptr
         else:
@@ -49,10 +56,11 @@ class MazeVisualizer:
         else:
             self.win = self.mlx.mlx_new_window(self.mlx_ptr, self.win_width, self.win_height, "Maze Visualizer")
         
-        self.player = Player(self.mlx, self.mlx_ptr, self.win, self.start[0], self.start[1], self.cell_color, self.maze, self.tile_size, self.offset_x, self.offset_y, start=self.start, exit=self.exit)
+        self.player = Player(self.mlx, self.mlx_ptr, self.win, self.start[0], self.start[1], self.cell_color, self.maze, self.tile_size, self.offset_x, self.offset_y, player_color=player_color, start=self.start, exit=self.exit)
         self.mlx.mlx_key_hook(self.win, self.key_hook, None)
         self.mlx.mlx_loop_hook(self.mlx_ptr, self.render_loop, None)
         self.mlx.mlx_mouse_hook(self.win, self.mouse_hook, None)
+        self.mlx.mlx_hook(self.win, 33, 0, self._close_hook, None)
 
         self.stats = Stats()
         
@@ -61,7 +69,7 @@ class MazeVisualizer:
         self.setup_ui()
         
         # Precompute static 42 pattern
-        self.patt = patt
+        self.patt = config.pattern
         if self.patt:
             self._compute_42_pattern()
         else:
@@ -171,7 +179,7 @@ class MazeVisualizer:
 
     def setup_ui(self):
         """Create UI buttons once - not every frame."""
-        from mlx_ui import Button, Label
+
         
         button_color = 0xFF272727
         text_color = 0xFFFFFFFF
@@ -201,20 +209,24 @@ class MazeVisualizer:
             x=1045, y=662,
             w=200, h=50,
             color=button_color,
-            text="Quit",
+            text="Back to Menu",
             text_color=text_color,
-            on_click=lambda: self.close_window()
+            on_click=lambda: self._back_to_menu()
         )
         
         self.buttons = [btn_regenerate, btn_toggle_path, btn_quit]
 
-        self.mazes_solved = Label(self.mlx, self.mlx_ptr, self.win, 1040, 12, "Mazes Solved:", 0xFF000000)
-        self.mazes_solved.draw()
+        self.lbls = [
+            Label(self.mlx, self.mlx_ptr, self.win, 1040, 12, "Mazes Solved:", 0xFF000000),
+            Label(self.mlx, self.mlx_ptr, self.win, 1040, 42, "Moves:", 0xFF000000)
+        ]
+
+        for lbl in self.lbls:
+            lbl.draw()
+        
         self.mazes_score = Label(self.mlx, self.mlx_ptr, self.win, 1200, 12, f"{self.stats.mazes_solved}", 0xFF000000)
         self.mazes_score.draw()
 
-        self.steps_lbl = Label(self.mlx, self.mlx_ptr, self.win, 1040, 42, "Moves:", 0xFF000000)
-        self.steps_lbl.draw()
         self.steps = Label(self.mlx, self.mlx_ptr, self.win, 1200, 42, f"{self.stats.steps}", 0xFF000000)
         self.steps.draw()
 
@@ -297,8 +309,12 @@ class MazeVisualizer:
         a = 97
         s = 115
         d = 100
+        esc = 65307
 
-        if keycode == w:
+        if keycode == esc:
+            # Go back to menu
+            self._back_to_menu()
+        elif keycode == w:
             if self.player.move("up"):
                 self.stats.add_step()
                 self.steps.update(0xFFD9D9D9, text=f"{self.stats.steps}")
@@ -315,6 +331,13 @@ class MazeVisualizer:
                 self.stats.add_step()
                 self.steps.update(0xFFD9D9D9, text=f"{self.stats.steps}")
         return 0
+    
+    def _back_to_menu(self):
+        """Go back to menu."""
+        self.running = False
+        if self.menu:
+            self.menu.running = True
+        self.mlx.mlx_loop_exit(self.mlx_ptr)
 
     def mouse_hook(self, button, x, y, param):
         if button == 1:  # Left click
@@ -323,10 +346,32 @@ class MazeVisualizer:
         return 0
 
     def close_window(self):
+        self.running = False
+        self.mlx.mlx_loop_exit(self.mlx_ptr)
+        return 0
+    
+    def _close_hook(self, _):
+        """Window close event handler (event 33) - quits everything."""
+        self.running = False
+        if self.menu:
+            self.menu.running = False
         self.mlx.mlx_loop_exit(self.mlx_ptr)
         return 0
 
+    def _setup_hooks(self):
+        """Set up input hooks for the visualizer."""
+        self.mlx.mlx_key_hook(self.win, self.key_hook, None)
+        self.mlx.mlx_loop_hook(self.mlx_ptr, self.render_loop, None)
+        self.mlx.mlx_mouse_hook(self.win, self.mouse_hook, None)
+        self.mlx.mlx_hook(self.win, 33, 0, self._close_hook, None)
+
     def run(self):
+        self.running = True
+        # Re-register hooks (in case menu changed them)
+        self._setup_hooks()
+        # Draw the maze
+        self.draw_maze()
+        self.setup_ui()
         self.mlx.mlx_loop(self.mlx_ptr)
     
     def solve(self):
@@ -351,7 +396,7 @@ class MazeVisualizer:
         """Regenerate the maze with a new random layout."""
         maze_gen = MazeGen()
         layout = maze_gen.create_cell_layout(self.width, self.height)
-        self.maze = maze_gen.generate_maze(layout, self.config, self.patt)
+        self.maze = maze_gen.generate_maze(layout, self.config)
         self.path = []
         self.show_path = False
         # Redraw the maze
@@ -376,9 +421,10 @@ class MazeVisualizer:
     def player_reset(self):
         self.regen()
         self.stats.add_maze()
-        self.steps.update(0xFFD9D9D9, text=f"{self.stats.steps}")
         self.mazes_score.update(0xFFD9D9D9, text=f"{self.stats.mazes_solved}")
+        self.steps.update(0xFFD9D9D9, text=f"{self.stats.steps}")
         self.steps.draw()
+        self.mazes_score.draw()
 
     def score_clear(self):
         self.stats.mazes_solved = 0
