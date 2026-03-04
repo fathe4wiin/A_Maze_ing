@@ -1,9 +1,10 @@
 .PHONY: install run debug clean lint lint-strict
 
 install:
-	python -m venv .venv
+	python3 -m venv .venv
 	.venv/bin/pip install --upgrade pip
 	.venv/bin/pip install -e .
+	.venv/bin/pip install mlx-2.2-py3-none-manylinux1_x86_64.whl
 	.venv/bin/pip install flake8 mypy
 
 run:
