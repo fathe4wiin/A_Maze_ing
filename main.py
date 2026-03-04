@@ -1,11 +1,11 @@
 import sys
 import random
-from maze_gen import MazeGen
-from parsing import Config
-from gen_outputfile import generate_output_file
-from main_menu import MainMenu
 from mlx import Mlx
-from Visualizing import MazeVisualizer
+from lib.maze_gen import MazeGen
+from lib.parsing import Config
+from lib.gen_outputfile import generate_output_file
+from lib.main_menu import MainMenu
+from lib.Visualizing import MazeVisualizer
 
 def main():
     config: Config = Config("config.txt")
