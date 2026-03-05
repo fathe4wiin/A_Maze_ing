@@ -1,6 +1,7 @@
 from .cell import Cell
 
-def bfs(maze: list[list[Cell]], start: Cell, exit: Cell):
+
+def bfs(maze: list[list[Cell]], start: Cell, exit: Cell) -> list[Cell] | None:
     queue = [start]
     visited = {start}
     parent = {start: None}
@@ -11,7 +12,8 @@ def bfs(maze: list[list[Cell]], start: Cell, exit: Cell):
             break
 
         for neighbor in current.neighbors.values():
-            if neighbor and current.is_accessible(neighbor) and neighbor not in visited:
+            if neighbor and current.is_accessible(
+                    neighbor) and neighbor not in visited:
                 queue.append(neighbor)
                 visited.add(neighbor)
                 parent[neighbor] = current

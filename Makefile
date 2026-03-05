@@ -18,8 +18,8 @@ clean:
 
 lint:
 	.venv/bin/flake8 .
-	.venv/bin/mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
+	.venv/bin/mypy . --config-file=mypy.ini
 
 lint-strict:
 	.venv/bin/flake8 .
-	.venv/bin/mypy . --strict
+	.venv/bin/mypy . --strict --config-file=mypy.ini

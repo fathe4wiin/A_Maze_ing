@@ -2,15 +2,18 @@ from .cell import Cell
 from .maze_algo import MazeAlgo
 from .parsing import Config
 
+
 class MazeGen():
     def __init__(self):
         pass
 
     def create_cell_layout(self, width: int, height: int) -> list[list[Cell]]:
-        layout = [[None for _ in range(width)] for _ in range(height)]
-        visited = [[False for _ in range(width)] for _ in range(height)]
+        layout: list[list[Cell | None]] = [
+            [None for _ in range(width)] for _ in range(height)]
+        visited: list[list[bool]] = [
+            [False for _ in range(width)] for _ in range(height)]
 
-        def in_bounds(x, y):
+        def in_bounds(x: int, y: int) -> bool:
             return 0 <= x < width and 0 <= y < height
 
         # Directions table : (dx, dy, direction, opposite)
@@ -21,18 +24,18 @@ class MazeGen():
             (-1, 0, 'W', 'E')
         ]
 
-        def flood_fill(start_x, start_y):
+        def flood_fill(start_x: int, start_y: int) -> None:
             stack = [(start_x, start_y)]
             while stack:
                 x, y = stack.pop()
                 if visited[y][x]:
                     continue
-                
+
                 if layout[y][x] is None:
                     layout[y][x] = Cell(x, y)
                 cell = layout[y][x]
                 visited[y][x] = True
-                
+
                 for dx, dy, dirn, opp in directions:
                     nx, ny = x + dx, y + dy
                     if in_bounds(nx, ny):
@@ -40,15 +43,16 @@ class MazeGen():
                             if layout[ny][nx] is None:
                                 layout[ny][nx] = Cell(nx, ny)
                             stack.append((nx, ny))
-                        
+
                         neighbor = layout[ny][nx]
                         if neighbor:
                             cell.neighbors[dirn] = neighbor
                             neighbor.neighbors[opp] = cell
 
         flood_fill(0, 0)
-        return layout
-    
-    def generate_maze(self, layout: list[list[Cell]], config: Config):
+        return [row for row in layout]  # type: ignore[return-value]
+
+    def generate_maze(self,
+                      layout: list[list[Cell]],
+                      config: Config) -> list[list[Cell]]:
         return MazeAlgo.generate_maze(layout, 0, 0, config)
-    

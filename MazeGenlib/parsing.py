@@ -4,7 +4,7 @@ from .errors import MazeError
 
 class Parsing:
     @staticmethod
-    def parse_config(filename):
+    def parse_config(filename: str) -> dict:  # type: ignore[return-value]
         MANDATORY_KEYS = {
             "WIDTH": int,
             "HEIGHT": int,
@@ -15,7 +15,7 @@ class Parsing:
             "SEED": int
         }
 
-        config = dict()
+        config: dict = {}
 
         try:
             with open(filename) as f:
@@ -38,7 +38,9 @@ class Parsing:
             try:
                 config[key] = converter(config[key])
             except Exception as e:
-                raise MazeError(f"Invalid value for {key}: {config[key]!r} ({e})")
+                raise MazeError(
+                    f"Invalid value for {key}: {
+                        config[key]!r} ({e})")
         for key in config:
             if key not in MANDATORY_KEYS:
                 config[key] = config[key].strip()
@@ -46,15 +48,15 @@ class Parsing:
 
 
 class Config:
-    def __init__(self, filename):
-        self.WIDTH = None
-        self.HEIGHT = None
-        self.ENTRY = None
-        self.EXIT = None
-        self.OUTPUT_FILE = None
-        self.PERFECT = None
-        self.SEED = None
-        self.pattern: bool
+    def __init__(self, filename: str) -> None:
+        self.WIDTH: int | None = None
+        self.HEIGHT: int | None = None
+        self.ENTRY: tuple[int, int] | None = None
+        self.EXIT: tuple[int, int] | None = None
+        self.OUTPUT_FILE: str | None = None
+        self.PERFECT: bool | None = None
+        self.SEED: int | None = None
+        self.pattern: bool = False
 
         if filename:
             entries = Parsing.parse_config(filename)
@@ -68,16 +70,34 @@ class Config:
         MIN_HEIGHT, MAX_HEIGHT = 3, 180
 
         if self.WIDTH < MIN_WIDTH or self.HEIGHT < MIN_HEIGHT:
-            raise MazeError(f"Maze too small: WIDTH={self.WIDTH}, HEIGHT={self.HEIGHT}. Minimum is {MIN_WIDTH}x{MIN_HEIGHT}.")
+            raise MazeError(
+                f"Maze too small: WIDTH={
+                    self.WIDTH}, HEIGHT={
+                    self.HEIGHT}. Minimum is {MIN_WIDTH}x{MIN_HEIGHT}.")
 
         if self.WIDTH > MAX_WIDTH or self.HEIGHT > MAX_HEIGHT:
-            raise MazeError(f"Maze too small: WIDTH={self.WIDTH}, HEIGHT={self.HEIGHT}. Maximu is {MAX_WIDTH}x{MAX_HEIGHT}.")
+            raise MazeError(
+                f"Maze too small: WIDTH={
+                    self.WIDTH}, HEIGHT={
+                    self.HEIGHT}. Maximu is {MAX_WIDTH}x{MAX_HEIGHT}.")
 
-        if not (0 <= self.ENTRY[0] < self.WIDTH and 0 <= self.ENTRY[1] < self.HEIGHT):
-            raise MazeError(f"ENTRY coordinates {self.ENTRY} are out of bounds for maze size {self.WIDTH}x{self.HEIGHT}")
+        if not (0 <= self.ENTRY[0] < self.WIDTH and 0 <=
+                self.ENTRY[1] < self.HEIGHT):
+            raise MazeError(
+                f"ENTRY coordinates {
+                    self.ENTRY} are out of bounds for maze size {
+                    self.WIDTH}x{
+                    self.HEIGHT}")
 
-        if not (0 <= self.EXIT[0] < self.WIDTH and 0 <= self.EXIT[1] < self.HEIGHT):
-            raise MazeError(f"EXIT coordinates {self.EXIT} are out of bounds for maze size {self.WIDTH}x{self.HEIGHT}")
+        if not (0 <= self.EXIT[0] < self.WIDTH and 0 <=
+                self.EXIT[1] < self.HEIGHT):
+            raise MazeError(
+                f"EXIT coordinates {
+                    self.EXIT} are out of bounds for maze size {
+                    self.WIDTH}x{
+                    self.HEIGHT}")
 
         if self.ENTRY == self.EXIT:
-            raise MazeError(f"ENTRY and EXIT cannot be the same position: {self.ENTRY}")
+            raise MazeError(
+                f"ENTRY and EXIT cannot be the same position: {
+                    self.ENTRY}")

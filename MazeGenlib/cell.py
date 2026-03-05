@@ -1,10 +1,12 @@
 from typing import Dict, Optional
 
+
 class Cell:
     def __init__(self, x: int, y: int) -> None:
         self.x = x
         self.y = y
-        self.walls: Dict[str, bool] = {'N': True, 'E': True, 'S': True, 'W': True}
+        self.walls: Dict[str, bool] = {
+            'N': True, 'E': True, 'S': True, 'W': True}
         self.visited: bool = False
         self.neighbors: Dict[str, Optional['Cell']] = {
             'N': None, 'E': None, 'S': None, 'W': None
@@ -29,7 +31,7 @@ class Cell:
             self.walls['N'] = False
             neighbor.walls['S'] = False
 
-    def is_accessible(self, neighbor: 'Cell'):
+    def is_accessible(self, neighbor: 'Cell') -> bool:
         if neighbor.x == self.x + 1:
             return not self.walls['E']
         elif neighbor.x == self.x - 1:
