@@ -117,7 +117,7 @@ def is_in_42_pattern(x: int, y: int, config: Config) -> bool | None:
     return (x, y) in pattern_coords
 
 
-def mark_four_two(maze: list[list[Cell]], config: Config):
+def mark_four_two(maze: list[list[Cell]], config: Config) -> None:
     for row in maze:
         for cell in row:
             if is_in_42_pattern(cell.x, cell.y, config):

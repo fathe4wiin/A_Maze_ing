@@ -13,7 +13,7 @@ class MainMenu:
             mlx_ptr: int | None = None,
             win: int | None = None) -> None:
         self.running = False
-        self.viz = None
+        self.viz: Any = None
         self.maze = maze
         self.config = config
         self.pattern = config.pattern

@@ -30,7 +30,7 @@ class MazeVisualizer:
         self.config = config
         self.start = config.ENTRY
         self.exit = config.EXIT
-        self.path = []
+        self.path: list[Cell] = []
         self.show_path = False
 
         self.win_width = 1000
@@ -100,7 +100,7 @@ class MazeVisualizer:
         if self.patt:
             self._compute_42_pattern()
         else:
-            self.text_cells = set()
+            self.text_cells: set[tuple[int, int]] = set()
 
         self.color_change(0, 0)
 
@@ -239,7 +239,7 @@ class MazeVisualizer:
             color=button_color,
             text="Reset & Regenerate",
             text_color=text_color,
-            on_click=lambda: (self.player_reset(), self.score_clear())
+            on_click=lambda: self.clear_score_and_player()
         )
 
         btn_toggle_path = Button(
@@ -473,9 +473,10 @@ class MazeVisualizer:
 
         start_cell = self.maze[self.start[1]][self.start[0]]
         exit_cell = self.maze[self.exit[1]][self.exit[0]]
-        self.path = bfs(self.maze, start_cell, exit_cell)
-        if not self.path:
+        path_result = bfs(self.maze, start_cell, exit_cell)
+        if not path_result:
             raise MazeError("No Path was found")
+        self.path = path_result
         self.show_path = True
 
     def regen(self) -> None:
@@ -531,3 +532,7 @@ class MazeVisualizer:
         self.stats.steps = 0
         self.mazes_score.update(0xFFD9D9D9, f"{self.stats.mazes_solved}")
         self.steps.update(0xFFD9D9D9, f"{self.stats.steps}")
+
+    def clear_score_and_player(self) -> None:
+        self.player_reset()
+        self.score_clear()

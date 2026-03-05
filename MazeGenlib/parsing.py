@@ -1,11 +1,12 @@
 import re
+from typing import Callable, Any
 from .errors import MazeError
 
 
 class Parsing:
     @staticmethod
-    def parse_config(filename: str) -> dict:  # type: ignore[return-value]
-        MANDATORY_KEYS = {
+    def parse_config(filename: str) -> dict[str, Any]:
+        MANDATORY_KEYS: dict[str, Callable[[str], Any]] = {
             "WIDTH": int,
             "HEIGHT": int,
             "ENTRY": lambda v: tuple(map(int, v.split(','))),
@@ -15,7 +16,7 @@ class Parsing:
             "SEED": int
         }
 
-        config: dict = {}
+        config: dict[str, Any] = {}
 
         try:
             with open(filename) as f:
@@ -49,13 +50,13 @@ class Parsing:
 
 class Config:
     def __init__(self, filename: str) -> None:
-        self.WIDTH: int | None = None
-        self.HEIGHT: int | None = None
-        self.ENTRY: tuple[int, int] | None = None
-        self.EXIT: tuple[int, int] | None = None
-        self.OUTPUT_FILE: str | None = None
-        self.PERFECT: bool | None = None
-        self.SEED: int | None = None
+        self.WIDTH: int
+        self.HEIGHT: int
+        self.ENTRY: tuple[int, int]
+        self.EXIT: tuple[int, int]
+        self.OUTPUT_FILE: str
+        self.PERFECT: bool
+        self.SEED: int
         self.pattern: bool = False
 
         if filename:

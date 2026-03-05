@@ -3,8 +3,8 @@ from .maze_algo import MazeAlgo
 from .parsing import Config
 
 
-class MazeGen():
-    def __init__(self):
+class MazeGen:
+    def __init__(self) -> None:
         pass
 
     def create_cell_layout(self, width: int, height: int) -> list[list[Cell]]:
@@ -46,11 +46,18 @@ class MazeGen():
 
                         neighbor = layout[ny][nx]
                         if neighbor:
+                            assert cell is not None
                             cell.neighbors[dirn] = neighbor
                             neighbor.neighbors[opp] = cell
 
         flood_fill(0, 0)
-        return [row for row in layout]  # type: ignore[return-value]
+        # Filter out None values and return
+        result: list[list[Cell]] = []
+        for row in layout:
+            filtered_row: list[Cell] = [cell for cell in row if cell is not None]
+            if filtered_row:
+                result.append(filtered_row)
+        return result
 
     def generate_maze(self,
                       layout: list[list[Cell]],
