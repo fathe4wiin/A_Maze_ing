@@ -1,0 +1,2 @@
+class MazeError(Exception):
+    pass

@@ -6,48 +6,80 @@ from lib.parsing import Config
 from lib.gen_outputfile import generate_output_file
 from lib.main_menu import MainMenu
 from lib.Visualizing import MazeVisualizer
+from lib.errors import MazeError
 
 def main():
-    config: Config = Config("config.txt")
+    try:
+        fconfig = sys.argv[1]
+    except Exception as e:
+        print(f"Error: {e}")
+        return
+
+    try:
+        config: Config = Config(fconfig)
+    except MazeError as e:
+        print(f"Error: {e}")
+        return
+
     random.seed(config.SEED)
 
-    maze = MazeGen()
-    layout = maze.create_cell_layout(config.WIDTH, config.HEIGHT)
-    maze = maze.generate_maze(layout, config)
-
-    if not maze:
-        print("error")
+    mazeGen = MazeGen()
+    layout = mazeGen.create_cell_layout(config.WIDTH, config.HEIGHT)
+    try:
+        maze = mazeGen.generate_maze(layout, config)
+    except MazeError as e:
+        print(f"Error: {e}")
         return
-    generate_output_file(maze, config.ENTRY, config.EXIT, config.OUTPUT_FILE)
-
-    mlx = Mlx()
-    mlx_ptr = mlx.mlx_init()
-    win = mlx.mlx_new_window(mlx_ptr, 1280, 720, "A-MAZE-ING")
-
-    menu = MainMenu(maze, config, mlx=mlx, mlx_ptr=mlx_ptr, win=win)
-
-    viz = MazeVisualizer(
-            maze,
-            mlx=mlx,
-            mlx_ptr=mlx_ptr,
-            win=win,
-            player_color=menu.selected_colors['player'],
-            cell_color=menu.selected_colors['cell'],
-            wall_color=menu.selected_colors['wall'],
-            pattern_color=menu.selected_colors['pattern'],
-            config=config,
-        )
     
-    # Link menu and viz together
-    menu.viz = viz
-    viz.menu = menu
-    menu.running = True
+    try:
+        generate_output_file(maze, config.ENTRY, config.EXIT, config.OUTPUT_FILE)
+    except MazeError as e:
+        print(f"Error: {e}")
+        return
 
-    while menu.running or viz.running:
-        if menu.running:
-            menu.run()
-        elif viz.running:
-            viz.run()
+    try:
+        mlx = Mlx()
+        if not mlx:
+            raise MazeError("Failed to initialize MLX library")
+        
+        mlx_ptr = mlx.mlx_init()
+        if not mlx_ptr:
+            raise MazeError("Failed to initialize MLX: mlx_ptr is None")
+        
+        win = mlx.mlx_new_window(mlx_ptr, 1280, 720, "A-MAZE-ING")
+        if not win:
+            raise MazeError("Failed to create MLX window")
+        
+        menu = MainMenu(maze, config, mlx=mlx, mlx_ptr=mlx_ptr, win=win)
+
+        viz = MazeVisualizer(
+                maze,
+                mlx=mlx,
+                mlx_ptr=mlx_ptr,
+                win=win,
+                player_color=menu.selected_colors['player'],
+                cell_color=menu.selected_colors['cell'],
+                wall_color=menu.selected_colors['wall'],
+                pattern_color=menu.selected_colors['pattern'],
+                config=config,
+            )
+        
+        menu.viz = viz
+        viz.menu = menu
+        menu.running = True
+
+        while menu.running or viz.running:
+            if menu.running:
+                menu.run()
+            elif viz.running:
+                viz.run()
+    
+    except MazeError as e:
+        print(f"MLX Error: {e}")
+        return
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return
 
 
 if __name__ == "__main__":

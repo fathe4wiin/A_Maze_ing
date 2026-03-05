@@ -7,6 +7,7 @@ from .maze_gen import MazeGen
 from .maze_algo import MazeAlgo
 from .player import Player
 from .stats import Stats
+from .errors import MazeError
 
 class MazeVisualizer:
     def __init__(self, maze, mlx=None, mlx_ptr=None, win=None, player_color=0x55FFFFFF, cell_color=0xFFFFFFFF, wall_color=0xFF000000, pattern_color=0xFFFFD700, config=None, menu=None):
@@ -390,6 +391,8 @@ class MazeVisualizer:
         start_cell = self.maze[self.start[1]][self.start[0]]
         exit_cell = self.maze[self.exit[1]][self.exit[0]]
         self.path = bfs(self.maze, start_cell, exit_cell)
+        if not self.path:
+            raise MazeError("No Path was found")
         self.show_path = True
 
     def regen(self):

@@ -1,6 +1,7 @@
 import random
 from .cell import Cell
 from .parsing import Config
+from .errors import MazeError
 
 class MazeAlgo():
     def __init__(self, perfect: bool):
@@ -9,7 +10,7 @@ class MazeAlgo():
     @staticmethod
     def generate_maze(maze: list[list[Cell]], start_x, start_y, config: Config):
         if is_in_42_pattern(config.ENTRY[0], config.ENTRY[1], config) or is_in_42_pattern(config.EXIT[0], config.EXIT[1], config):
-            return None
+            raise MazeError("Entry or exit cannot be placed within the 42 pattern")
         
         stack = []
         current: Cell = maze[start_y][start_x]
