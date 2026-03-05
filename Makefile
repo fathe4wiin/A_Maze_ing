@@ -14,11 +14,7 @@ debug:
 	.venv/bin/python -m pdb main.py
 
 clean:
-	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
-	find . -type d -name ".mypy_cache" -exec rm -rf {} + 2>/dev/null || true
-	find . -type d -name "*.egg-info" -exec rm -rf {} + 2>/dev/null || true
-	find . -type f -name "*.pyc" -delete 2>/dev/null || true
-	find . -type f -name "*.pyo" -delete 2>/dev/null || true
+	rm -rf **/__pycache__ **/.mypy_cache **/*.egg-info **/*.pyc **/*.pyo 2>/dev/null || true
 
 lint:
 	.venv/bin/flake8 .
