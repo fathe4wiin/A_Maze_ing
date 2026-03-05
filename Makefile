@@ -11,7 +11,7 @@ run:
 	. .venv/bin/activate && python3 main.py config.txt
 
 debug:
-	.venv/bin/python -m pdb main.py
+	python3 -m pdb main.py config.txt
 
 clean:
 	rm -rf **/__pycache__ **/.mypy_cache **/*.egg-info **/*.pyc **/*.pyo 2>/dev/null || true
