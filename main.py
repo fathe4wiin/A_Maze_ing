@@ -22,14 +22,6 @@ def main() -> None:
         print(f"Error: {e}")
         return
 
-    # Assert non-None values for type checking
-    assert config.SEED is not None
-    assert config.WIDTH is not None
-    assert config.HEIGHT is not None
-    assert config.ENTRY is not None
-    assert config.EXIT is not None
-    assert config.OUTPUT_FILE is not None
-
     random.seed(config.SEED)
 
     mazeGen = MazeGen()
