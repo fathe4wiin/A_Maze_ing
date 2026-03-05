@@ -1,11 +1,10 @@
 import re
-from .errors import MazeError 
+from .errors import MazeError
 
 
 class Parsing:
     @staticmethod
     def parse_config(filename):
-        # Define mandatory keys and conversion logic
         MANDATORY_KEYS = {
             "WIDTH": int,
             "HEIGHT": int,
@@ -33,7 +32,6 @@ class Parsing:
         except Exception as e:
             raise MazeError(f"config file error: {e}")
 
-        # Check presence and parse types for mandatory keys
         for key, converter in MANDATORY_KEYS.items():
             if key not in config:
                 raise MazeError(f"Mandatory key '{key}' not found in config.")
@@ -41,7 +39,6 @@ class Parsing:
                 config[key] = converter(config[key])
             except Exception as e:
                 raise MazeError(f"Invalid value for {key}: {config[key]!r} ({e})")
-        # Convert optional entries to str (keep as raw)
         for key in config:
             if key not in MANDATORY_KEYS:
                 config[key] = config[key].strip()
@@ -50,7 +47,6 @@ class Parsing:
 
 class Config:
     def __init__(self, filename):
-        # Initialize default attributes for mandatory keys
         self.WIDTH = None
         self.HEIGHT = None
         self.ENTRY = None
@@ -67,33 +63,21 @@ class Config:
             self.pattern = True
         else:
             self.pattern = False
-        
-        
-        # Display constraints (based on win_width=1000, win_height=720, min_tile_size=4)
+
         MIN_WIDTH, MAX_WIDTH = 3, 250
         MIN_HEIGHT, MAX_HEIGHT = 3, 180
-        
-        # Validate dimensions - minimum bounds
+
         if self.WIDTH < MIN_WIDTH or self.HEIGHT < MIN_HEIGHT:
             raise MazeError(f"Maze too small: WIDTH={self.WIDTH}, HEIGHT={self.HEIGHT}. Minimum is {MIN_WIDTH}x{MIN_HEIGHT}.")
-        
-        # Validate dimensions - maximum bounds
+
         if self.WIDTH > MAX_WIDTH or self.HEIGHT > MAX_HEIGHT:
             raise MazeError(f"Maze too small: WIDTH={self.WIDTH}, HEIGHT={self.HEIGHT}. Maximu is {MAX_WIDTH}x{MAX_HEIGHT}.")
-        
-        # Validate ENTRY coordinates
+
         if not (0 <= self.ENTRY[0] < self.WIDTH and 0 <= self.ENTRY[1] < self.HEIGHT):
             raise MazeError(f"ENTRY coordinates {self.ENTRY} are out of bounds for maze size {self.WIDTH}x{self.HEIGHT}")
-        
-        # Validate EXIT coordinates
+
         if not (0 <= self.EXIT[0] < self.WIDTH and 0 <= self.EXIT[1] < self.HEIGHT):
             raise MazeError(f"EXIT coordinates {self.EXIT} are out of bounds for maze size {self.WIDTH}x{self.HEIGHT}")
-        
-        # Validate ENTRY and EXIT are different
+
         if self.ENTRY == self.EXIT:
             raise MazeError(f"ENTRY and EXIT cannot be the same position: {self.ENTRY}")
-
-
-# Example usage:
-# config = parse_config("maze.conf")
-# print(config)

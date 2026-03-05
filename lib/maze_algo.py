@@ -6,12 +6,12 @@ from .errors import MazeError
 class MazeAlgo():
     def __init__(self, perfect: bool):
         self.perfect = perfect
-        
+
     @staticmethod
     def generate_maze(maze: list[list[Cell]], start_x, start_y, config: Config):
         if is_in_42_pattern(config.ENTRY[0], config.ENTRY[1], config) or is_in_42_pattern(config.EXIT[0], config.EXIT[1], config):
             raise MazeError("Entry or exit cannot be placed within the 42 pattern")
-        
+
         stack = []
         current: Cell = maze[start_y][start_x]
         current.visited = True
@@ -21,10 +21,9 @@ class MazeAlgo():
             for direction, neighbor in current.neighbors.items():
                 if neighbor and not neighbor.visited:
                     unvisited_neighbors.append((direction, neighbor))
-            
+
             if unvisited_neighbors:
                 n_dir, n_cell = random.choice(unvisited_neighbors)
-                # Only remove wall if neither cell is part of the 42 config.pattern
                 if not is_in_42_pattern(current.x, current.y, config) and not is_in_42_pattern(n_cell.x, n_cell.y, config):
                     current.remove_wall_with(n_cell)
                 stack.append(current)
@@ -34,7 +33,7 @@ class MazeAlgo():
                 current = stack.pop()
             else:
                 break
-        
+
         if not config.PERFECT:
             unpefect_the_maze(maze, config)
         return maze

@@ -5,7 +5,6 @@ from .errors import MazeError
 def generate_output_file(maze: list[list[Cell]], start_coord: tuple, exit_coord: tuple, filename: str):
     try:
         with open(filename, 'w') as f:
-
             for row in maze:
                 line = ""
                 for cell in row:
