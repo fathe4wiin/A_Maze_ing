@@ -1,8 +1,5 @@
 from .cell import Cell
 
-
-
-
 def bfs(maze: list[list[Cell]], start: Cell, exit: Cell):
     queue = [start]
     visited = {start}

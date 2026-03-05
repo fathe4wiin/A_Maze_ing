@@ -8,7 +8,7 @@ install:
 	.venv/bin/pip install flake8 mypy
 
 run:
-	.venv/bin/python main.py
+	python3 main.py config.txt
 
 debug:
 	.venv/bin/python -m pdb main.py

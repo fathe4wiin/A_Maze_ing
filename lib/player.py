@@ -15,16 +15,15 @@ class Player:
         self.radius = tile_size // 3
         self.cell_color = cell_color
         self.maze = maze
-        self.start = start  # (x, y) tuple
-        self.exit = exit    # (x, y) tuple
+        self.start = start
+        self.exit = exit
 
     def draw(self):
         """Draw the player as a circle."""
-        # Calculate center of the tile
+
         center_x = self.offset_x + self.x * self.tile_size + self.tile_size // 2
         center_y = self.offset_y + self.y * self.tile_size + self.tile_size // 2
-        
-        # Draw filled circle using midpoint circle algorithm
+
         for dy in range(-self.radius, self.radius + 1):
             for dx in range(-self.radius, self.radius + 1):
                 if dx * dx + dy * dy <= self.radius * self.radius:
@@ -56,15 +55,11 @@ class Player:
             return True
 
         return False
-    def cleanup(self):
-        """Clean up resources (no longer needed for circle drawing)."""
-        pass
 
     def clear(self):
         center_x = self.offset_x + self.x * self.tile_size + self.tile_size // 2
         center_y = self.offset_y + self.y * self.tile_size + self.tile_size // 2
-        
-        # Get the cell's actual color (use dark_color if cell is in path)
+
         cell = self.maze[self.y][self.x]
         if cell.in_path:
             cell_color = cell.dark_color
@@ -75,8 +70,7 @@ class Player:
             for dx in range(-self.radius, self.radius + 1):
                 if dx * dx + dy * dy <= self.radius * self.radius:
                     self.mlx.mlx_pixel_put(self.mlx_ptr, self.win, center_x + dx, center_y + dy, cell_color)
-        
-        # Redraw start/exit markers if player was on them
+
         marker_size = max(4, self.tile_size // 4)
         if self.start and (self.x, self.y) == self.start:
             mx = center_x - marker_size // 2
@@ -95,3 +89,4 @@ class Player:
         if not current or not dest:
             return False
         return current.is_accessible(dest)
+

@@ -9,9 +9,9 @@ class Cell:
         self.neighbors: Dict[str, Optional['Cell']] = {
             'N': None, 'E': None, 'S': None, 'W': None
         }
-        self.color: int = 0xFFFFFFFF  # Default white color
-        self.dark_color: int = 0xFF7F7F7F  # Darkened color
-        self.in_path: bool = False  # Whether this cell is in the solution path
+        self.color: int = 0xFFFFFFFF
+        self.dark_color: int = 0xFF7F7F7F
+        self.in_path: bool = False
 
     def remove_wall_with(self, neighbor: 'Cell') -> None:
         dx = neighbor.x - self.x

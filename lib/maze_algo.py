@@ -4,9 +4,6 @@ from .parsing import Config
 from .errors import MazeError
 
 class MazeAlgo():
-    def __init__(self, perfect: bool):
-        self.perfect = perfect
-
     @staticmethod
     def generate_maze(maze: list[list[Cell]], start_x, start_y, config: Config):
         if is_in_42_pattern(config.ENTRY[0], config.ENTRY[1], config) or is_in_42_pattern(config.EXIT[0], config.EXIT[1], config):
@@ -85,16 +82,16 @@ def is_in_42_pattern(x, y, config: Config):
     if config.pattern == False:
         return
     four = [
-        (0,0), (0,1), (0,2), # Left vertical
-        (1,2),               # Middle horizontal
-        (2,0), (2,1), (2,2), (2,3), (2,4) # Right vertical
+        (0,0), (0,1), (0,2),
+        (1,2),
+        (2,0), (2,1), (2,2), (2,3), (2,4)
     ]
     two = [
-        (4,0), (5,0), (6,0), # Top horizontal
-        (6,1),               # Top right
-        (4,2), (5,2), (6,2), # Middle horizontal
-        (4,3),               # Bottom left
-        (4,4), (5,4), (6,4)  # Bottom horizontal
+        (4,0), (5,0), (6,0),
+        (6,1),
+        (4,2), (5,2), (6,2),
+        (4,3),
+        (4,4), (5,4), (6,4)
     ]
     offset_x = (config.WIDTH - 7) // 2
     offset_y = (config.HEIGHT - 5) // 2

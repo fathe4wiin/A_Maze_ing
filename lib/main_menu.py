@@ -1,4 +1,4 @@
-from .mlx_ui import Label, Button, Window
+from .mlx_ui import Label, Button
 from mlx import Mlx
 from .parsing import Config
 
@@ -6,7 +6,7 @@ from .parsing import Config
 class MainMenu:
     def __init__(self, maze, config: Config, mlx=None, mlx_ptr=None, win=None):
         self.running = False
-        self.viz = None  # Visualizer instance (set from outside)
+        self.viz = None
         self.maze = maze
         self.config = config
         self.pattern = config.pattern
@@ -15,7 +15,6 @@ class MainMenu:
         self.win_width = 1280
         self.win_height = 720
         
-        # Selected colors (will be passed to visualizer)
         self.selected_colors = {
             'player': 0xFFFF2D95,
             'cell': 0xFF2196F3,
@@ -23,7 +22,6 @@ class MainMenu:
             'pattern': 0xFFFF4081
         }
         
-        # Initialize button lists
         self.menu_ui = []
         self.bg_ui = []
         self.cell_ui = []
@@ -45,7 +43,6 @@ class MainMenu:
         else:
             self.win = self.mlx.mlx_new_window(self.mlx_ptr, self.win_width, self.win_height, "Maze Generator")
         
-        # Create buttons
         self._create_menu_buttons()
         self._create_bg_color_buttons()
         self._create_cell_color_buttons()
@@ -137,7 +134,7 @@ class MainMenu:
         """Draw all menu elements - called once initially and when colors change."""
         for btn in self._get_all_buttons():
             btn.draw()
-        # Draw color preview rectangles next to each category button
+
         self._draw_filled_rect(459, 208, 18, 50, self.selected_colors['player'])
         self._draw_filled_rect(700, 208, 18, 50, self.selected_colors['cell'])
         self._draw_filled_rect(459, 357, 18, 50, self.selected_colors['wall'])
@@ -155,7 +152,7 @@ class MainMenu:
     
     def _key_hook(self, keycode, _):
         """Key press handler."""
-        if keycode == 65307:  # ESC
+        if keycode == 65307:
             self._quit_app()
         return 0
     
@@ -163,7 +160,6 @@ class MainMenu:
         """Stop menu loop to start visualizer."""
         self.running = False
         if self.viz:
-            # Update visualizer colors
             self.viz.player_color = self.selected_colors['player']
             self.viz.player.color = self.selected_colors['player']
             self.viz.cell_color = self.selected_colors['cell']
@@ -194,9 +190,9 @@ class MainMenu:
     def run(self):
         """Run the menu once (draws and starts mlx loop)."""
         self.running = True
-        # Re-register hooks
+
         self._setup_hooks()
-        # Redraw entire menu
+
         self._draw_background()
         self._draw_menu()
         self.mlx.mlx_loop(self.mlx_ptr)
