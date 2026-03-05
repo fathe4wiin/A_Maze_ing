@@ -137,4 +137,3 @@ class Player:
         if not current or not dest:
             return False
         return current.is_accessible(dest)
-

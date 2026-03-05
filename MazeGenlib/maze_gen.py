@@ -3,10 +3,7 @@ from .maze_algo import MazeAlgo
 from .parsing import Config
 
 
-class MazeGen:
-    def __init__(self) -> None:
-        pass
-
+class MazeGen():
     def create_cell_layout(self, width: int, height: int) -> list[list[Cell]]:
         layout: list[list[Cell | None]] = [
             [None for _ in range(width)] for _ in range(height)]
@@ -34,6 +31,8 @@ class MazeGen:
                 if layout[y][x] is None:
                     layout[y][x] = Cell(x, y)
                 cell = layout[y][x]
+                if cell is None:
+                    continue
                 visited[y][x] = True
 
                 for dx, dy, dirn, opp in directions:
@@ -45,19 +44,12 @@ class MazeGen:
                             stack.append((nx, ny))
 
                         neighbor = layout[ny][nx]
-                        if neighbor:
-                            assert cell is not None
+                        if neighbor is not None:
                             cell.neighbors[dirn] = neighbor
                             neighbor.neighbors[opp] = cell
 
         flood_fill(0, 0)
-        # Filter out None values and return
-        result: list[list[Cell]] = []
-        for row in layout:
-            filtered_row: list[Cell] = [cell for cell in row if cell is not None]
-            if filtered_row:
-                result.append(filtered_row)
-        return result
+        return layout  # type: ignore[return-value]
 
     def generate_maze(self,
                       layout: list[list[Cell]],

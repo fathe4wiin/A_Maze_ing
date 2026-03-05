@@ -1,14 +1,11 @@
-from typing import Dict, Optional
-
-
 class Cell:
     def __init__(self, x: int, y: int) -> None:
         self.x = x
         self.y = y
-        self.walls: Dict[str, bool] = {
+        self.walls: dict[str, bool] = {
             'N': True, 'E': True, 'S': True, 'W': True}
         self.visited: bool = False
-        self.neighbors: Dict[str, Optional['Cell']] = {
+        self.neighbors: dict[str, 'Cell | None'] = {
             'N': None, 'E': None, 'S': None, 'W': None
         }
         self.color: int = 0xFFFFFFFF
