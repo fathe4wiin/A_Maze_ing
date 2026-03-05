@@ -1,12 +1,12 @@
 import sys
 import random
 from mlx import Mlx
-from lib.maze_gen import MazeGen
-from lib.parsing import Config
-from lib.gen_outputfile import generate_output_file
-from lib.main_menu import MainMenu
-from lib.Visualizing import MazeVisualizer
-from lib.errors import MazeError
+from MazeGenlib.maze_gen import MazeGen
+from MazeGenlib.parsing import Config
+from MazeGenlib.gen_outputfile import generate_output_file
+from MazeGenlib.main_menu import MainMenu
+from MazeGenlib.Visualizing import MazeVisualizer
+from MazeGenlib.errors import MazeError
 
 
 def main() -> None:
