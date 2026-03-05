@@ -2,12 +2,13 @@ from mlx import Mlx
 from .mlx_ui import Button
 from .parsing import Config
 from typing import Any
+from .cell import Cell
 
 
 class MainMenu:
     def __init__(
             self,
-            maze: list,
+            maze: list[list[Cell]],
             config: Config,
             mlx: Mlx | None = None,
             mlx_ptr: int | None = None,

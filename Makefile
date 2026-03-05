@@ -8,7 +8,7 @@ install:
 	.venv/bin/pip install flake8 mypy
 
 run:
-	python3 main.py config.txt
+	. .venv/bin/activate && python3 main.py config.txt
 
 debug:
 	.venv/bin/python -m pdb main.py
@@ -17,9 +17,9 @@ clean:
 	rm -rf **/__pycache__ **/.mypy_cache **/*.egg-info **/*.pyc **/*.pyo 2>/dev/null || true
 
 lint:
-	.venv/bin/flake8 .
-	.venv/bin/mypy . --config-file=mypy.ini
+	flake8 setup.py main.py MazeGenlib/
+	mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
 
 lint-strict:
-	.venv/bin/flake8 .
-	.venv/bin/mypy . --strict --config-file=mypy.ini
+	flake8 setup.py main.py MazeGenlib/
+	mypy . --strict
